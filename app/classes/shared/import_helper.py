@@ -153,17 +153,17 @@ class ImportHelpers:
         ServersController.finish_import(server_id)
         WebSocketManager().broadcast_to_server_users(server_id, "send_start_reload", {})
 
-    def download_threaded_bedrock_server(self, path, new_id):
+    def download_threaded_bedrock_server(self, path, new_id, server_update=False):
         bedrock_url = Helpers.get_latest_bedrock_url()
         download_thread = threading.Thread(
             target=self._download_bedrock_server,
             daemon=True,
-            args=(path, new_id, bedrock_url),
+            args=(path, new_id, bedrock_url, server_update),
             name=f"{new_id}_download",
         )
         download_thread.start()
 
-    def _download_bedrock_server(self, path, new_id, bedrock_url, server_update=False):
+    def _download_bedrock_server(self, path, new_id, bedrock_url, server_update):
         """
         Downloads the latest Bedrock server, unzips it, sets necessary permissions.
 

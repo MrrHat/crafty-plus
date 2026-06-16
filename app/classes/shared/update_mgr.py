@@ -62,7 +62,7 @@ class UpdateManager:
             if bedrock_url:
                 # Use the new method for secure download
                 self.import_helper.download_threaded_bedrock_server(
-                    server_path, server_id, bedrock_url, True
+                    server_path, server_id, True
                 )
                 downloaded = True
         except Exception as e:
