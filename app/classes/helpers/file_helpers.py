@@ -614,8 +614,9 @@ class FileHelpers:
                 "utf-8",
             )  # comments over 65535 bytes will be truncated
             for file in path_to_zip.rglob("*"):
-                is_excluded = any(file.is_relative_to(excluded_path)
-                                   for excluded_path in ex_replace)
+                is_excluded = any(
+                    file.is_relative_to(excluded_path) for excluded_path in ex_replace
+                )
                 if is_excluded or file.name == "crafty.sqlite" or file.is_dir():
                     continue
 
