@@ -297,7 +297,9 @@ class Controller:
             os.path.join(temp_dir, "crafty_sys_info.txt"), "a", encoding="utf-8"
         ) as f:
             f.write(sys_info_string)
-        FileHelpers.make_compressed_archive(Path(temp_zip_storage), Path(temp_dir), sys_info_string)
+        FileHelpers.make_compressed_archive(
+            Path(temp_zip_storage), Path(temp_dir), sys_info_string
+        )
         if len(WebSocketManager().clients) > 0:
             WebSocketManager().broadcast_user(
                 exec_user["user_id"],
