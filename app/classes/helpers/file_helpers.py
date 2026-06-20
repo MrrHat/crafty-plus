@@ -533,7 +533,7 @@ class FileHelpers:
 
         """
         if path_to_destination.suffix != ".zip":
-            path_to_destination.with_suffix(".zip")
+            path_to_destination = path_to_destination.with_suffix(".zip")
 
         # Create zip file
         with ZipFile(
