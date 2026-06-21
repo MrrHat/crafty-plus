@@ -70,6 +70,8 @@ class ApiFilesUploadHandler(BaseApiHandler):
         if not self.filename:
             raise ValueError
         match upload_type:
+            # Each of these cases must return a null value if evaluated correctly
+            # Failsafe value error is at the bottom of method through all cases.
             case "server_upload":
                 self.helper.validate_traversal(
                     Path(
@@ -82,6 +84,7 @@ class ApiFilesUploadHandler(BaseApiHandler):
                         self.filename,
                     ).resolve(),
                 )
+                return
             case "import":
                 self.helper.validate_traversal(
                     Path(self.controller.project_root, "import", "upload"),
@@ -89,6 +92,7 @@ class ApiFilesUploadHandler(BaseApiHandler):
                         self.controller.project_root, "import", "upload", self.filename
                     ).resolve(),
                 )
+                return
             case "background":
                 self.helper.validate_traversal(
                     Path(
@@ -101,6 +105,7 @@ class ApiFilesUploadHandler(BaseApiHandler):
                         self.filename,
                     ).resolve(),
                 )
+                return
         raise ValueError("No suitable upload type found.")
 
     async def post(self, server_id=None):
@@ -195,16 +200,16 @@ class ApiFilesUploadHandler(BaseApiHandler):
             else:
                 self.check_traversal(upload_type)
         except ValueError as why:
-            logger.exception("Failed to upload files with error: %s", why)
+            logger.exception("Failed to upload files with error: %s", str(why))
             return self.finish_json(
-                400, {"status": "error", "error": "BAD REQUEST", "error_data": why}
+                400, {"status": "error", "error": "BAD REQUEST", "error_data": str(why)}
             )
         try:
             file_size = int(self.request.headers.get("fileSize", None))
             total_chunks = int(self.request.headers.get("totalChunks", 0))
         except TypeError as why:
             return self.finish_json(
-                400, {"status": "error", "error": "TYPE ERROR", "error_data": {why}}
+                400, {"status": "error", "error": "TYPE ERROR", "error_data": str(why)}
             )
         self.chunk_index = self.request.headers.get("chunkId")
         self.temp_dir = os.path.join(self.controller.project_root, "temp", self.file_id)
