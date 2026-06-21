@@ -41,6 +41,8 @@ ARCHIVE_MIME_TYPES = [
     "application/octet-stream",
 ]
 
+CUSTOM_GRAPHICS = "app/frontend/static/assets/images/auth/custom"
+
 
 class ApiFilesUploadHandler(BaseApiHandler):
 
@@ -51,6 +53,55 @@ class ApiFilesUploadHandler(BaseApiHandler):
         if key not in self.upload_locks:
             self.upload_locks[key] = asyncio.Lock()
         return self.upload_locks[key]
+
+    def check_traversal(self, upload_type: str, **kwargs):
+        """Matches upload type and checks default upload location for traversal
+
+        Args:
+            upload_type (str): the type of upload we're evaluating
+            file_name (str): upload target file name
+            **kwargs: "server_id" when doing server uploads
+
+        Raises:
+            ValueError: If the file_name contains path traversal sequences
+                (e.g, '../') or attempts to escape the default upload location.
+            ValueError: If file_name or upload_type are null.
+        """
+        if not self.filename:
+            raise ValueError
+        match upload_type:
+            case "server_upload":
+                self.helper.validate_traversal(
+                    Path(
+                        self.controller.management.get_master_server_dir(),
+                        kwargs.get("server_id"),
+                    ),
+                    Path(
+                        self.controller.management.get_master_server_dir(),
+                        kwargs.get("server_id"),
+                        self.filename,
+                    ).resolve(),
+                )
+            case "import":
+                self.helper.validate_traversal(
+                    Path(self.controller.project_root, "import", "upload"),
+                    Path(
+                        self.controller.project_root, "import", "upload", self.filename
+                    ).resolve(),
+                )
+            case "background":
+                self.helper.validate_traversal(
+                    Path(
+                        self.controller.project_root,
+                        CUSTOM_GRAPHICS,
+                    ),
+                    Path(
+                        self.controller.project_root,
+                        CUSTOM_GRAPHICS,
+                        self.filename,
+                    ).resolve(),
+                )
+        raise ValueError("No suitable upload type found.")
 
     async def post(self, server_id=None):
         auth_data = self.authenticate_user()
@@ -101,7 +152,7 @@ class ApiFilesUploadHandler(BaseApiHandler):
             u_type = "admin_config"
             self.upload_dir = os.path.join(
                 self.controller.project_root,
-                "app/frontend/static/assets/images/auth/custom",
+                CUSTOM_GRAPHICS,
             )
             accepted_types = IMAGE_MIME_TYPES
         elif upload_type == "import":
@@ -139,6 +190,16 @@ class ApiFilesUploadHandler(BaseApiHandler):
         self.chunked = self.request.headers.get("chunked", False)
         self.filename = self.request.headers.get("fileName", None)
         try:
+            if server_id:
+                self.check_traversal(upload_type, server_id=server_id)
+            else:
+                self.check_traversal(upload_type)
+        except ValueError as why:
+            logger.exception("Failed to upload files with error: %s", why)
+            return self.finish_json(
+                400, {"status": "error", "error": "BAD REQUEST", "error_data": why}
+            )
+        try:
             file_size = int(self.request.headers.get("fileSize", None))
             total_chunks = int(self.request.headers.get("totalChunks", 0))
         except TypeError as why:
@@ -158,23 +219,6 @@ class ApiFilesUploadHandler(BaseApiHandler):
             self.upload_dir = pathlib.Path(
                 self.file_helper.get_absolute_path(server_path, self.upload_dir)
             ).resolve()
-            # Check to make sure the requested path is inside the server's directory
-            try:
-                self.helper.validate_traversal(
-                    server_path, pathlib.Path(self.upload_dir, self.filename).resolve()
-                )
-            except ValueError:
-                return self.finish_json(
-                    500,
-                    {
-                        "status": "error",
-                        "error": "TRAVERSAL_DETECTED",
-                        "error_data": (
-                            "Attempted traversal detected. "
-                            "Requested upload must go to server directory"
-                        ),
-                    },
-                )
         # Check to make sure the file type we're being sent is what we're expecting
         if (
             self.file_helper.check_mime_types(self.filename) not in accepted_types
