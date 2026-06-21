@@ -77,7 +77,7 @@ class ApiFilesUploadHandler(BaseApiHandler):
                     Path(
                         self.controller.management.get_master_server_dir(),
                         kwargs.get("server_id"),
-                    ),
+                    ).resolve(),
                     Path(
                         self.controller.management.get_master_server_dir(),
                         kwargs.get("server_id"),
@@ -87,7 +87,7 @@ class ApiFilesUploadHandler(BaseApiHandler):
                 return
             case "import":
                 self.helper.validate_traversal(
-                    Path(self.controller.project_root, "import", "upload"),
+                    Path(self.controller.project_root, "import", "upload").resolve(),
                     Path(
                         self.controller.project_root, "import", "upload", self.filename
                     ).resolve(),
@@ -98,7 +98,7 @@ class ApiFilesUploadHandler(BaseApiHandler):
                     Path(
                         self.controller.project_root,
                         CUSTOM_GRAPHICS,
-                    ),
+                    ).resolve(),
                     Path(
                         self.controller.project_root,
                         CUSTOM_GRAPHICS,
