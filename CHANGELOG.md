@@ -3,7 +3,7 @@
 ### Refactor
 - Remove Unused Exceptions ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1055))
 ### New features
-TBD
+- Add Run Now button to scheduled tasks ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1058))
 ### Bug fixes
 - Fix Bedrock Update Failures ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1049))
 - Fix directory downloads in the file manager ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1050))
