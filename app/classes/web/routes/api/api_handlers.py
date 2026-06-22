@@ -64,6 +64,9 @@ from app.classes.web.routes.api.servers.server.tasks.task.children import (
 from app.classes.web.routes.api.servers.server.tasks.task.index import (
     ApiServersServerTasksTaskIndexHandler,
 )
+from app.classes.web.routes.api.servers.server.tasks.task.run import (
+    ApiServersServerTasksTaskRunHandler,
+)
 from app.classes.web.routes.api.servers.server.webhooks.index import (
     ApiServersServerWebhooksIndexHandler,
 )
@@ -428,6 +431,11 @@ def api_handlers(handler_args):
         (
             r"/api/v2/servers/([a-z0-9-]+)/tasks/([0-9]+)/children/?",
             ApiServersServerTasksTaskChildrenHandler,
+            handler_args,
+        ),
+        (
+            r"/api/v2/servers/([a-z0-9-]+)/tasks/([0-9]+)/run/?",
+            ApiServersServerTasksTaskRunHandler,
             handler_args,
         ),
         (
