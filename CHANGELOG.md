@@ -1,9 +1,9 @@
 # Changelog
-## --- [4.11.0] - 2026/TBD
+## --- [4.10.8] - 2026/TBD
 ### New features
 TBD
 ### Bug fixes
-TBD
+- Fix Bedrock Update Failures ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1049))
 ### Tweaks
 TBD
 <br><br>
