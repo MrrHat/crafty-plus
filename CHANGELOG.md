@@ -1,9 +1,15 @@
 # Changelog
 ## --- [4.10.8] - 2026/TBD
+### Refactor
+- Remove Unused Exceptions ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1055))
 ### New features
 TBD
 ### Bug fixes
 - Fix Bedrock Update Failures ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1049))
+- Fix directory downloads in the file manager ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1050))
+- Fix backup exclusions on unix based OSes ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1051))
+- Fix cache refresh button on the creation and update pages ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1059))
+- Fix support logs failing to download due to a typing error ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1061))
 ### Tweaks
 TBD
 <br><br>
