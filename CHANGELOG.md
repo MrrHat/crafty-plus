@@ -11,7 +11,7 @@ TBD
 - Fix cache refresh button on the creation and update pages ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1059))
 - Fix support logs failing to download due to a typing error ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1061))
 ### Tweaks
-TBD
+- Add max 1gb for session.log file for noisy installs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1063))
 <br><br>
 
 ## --- [4.10.7] - 2026/06/16
