@@ -2,7 +2,9 @@ from app.classes.web.base_api_handler import BaseApiHandler
 
 
 class ApiCraftyJarCacheIndexHandler(BaseApiHandler):
-    def get(self, refresh=True):
+    def get(self, refresh):
+        if refresh is None:
+            refresh = True
         auth_data = self.authenticate_user()
         if not auth_data:
             return
@@ -23,7 +25,6 @@ class ApiCraftyJarCacheIndexHandler(BaseApiHandler):
                     "data": self.controller.big_bucket.get_bucket_data(),
                 },
             )
-
         if refresh:
             self.controller.big_bucket.manual_refresh_cache()
         return self.finish_json(
