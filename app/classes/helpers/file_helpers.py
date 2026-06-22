@@ -481,7 +481,7 @@ class FileHelpers:
 
         """
         if path_to_destination.suffix != ".zip":
-            path_to_destination.with_suffix(".zip")
+            path_to_destination = path_to_destination.with_suffix(".zip")
 
         # Create zip file
         with ZipFile(path_to_destination, "w") as zip_file:
@@ -533,7 +533,7 @@ class FileHelpers:
 
         """
         if path_to_destination.suffix != ".zip":
-            path_to_destination.with_suffix(".zip")
+            path_to_destination = path_to_destination.with_suffix(".zip")
 
         # Create zip file
         with ZipFile(
@@ -583,7 +583,7 @@ class FileHelpers:
         # create a ZipFile object
         path_to_destination += ".zip"
         ex_replace: list[Path] = [
-            Path(self.get_absolute_path(path_to_zip, p)).resolve()
+            Path(self.get_absolute_path(path_to_zip, p)).resolve().as_posix()
             for p in excluded_dirs
         ]
         path_to_zip: Path = Path(path_to_zip)
@@ -614,7 +614,10 @@ class FileHelpers:
                 "utf-8",
             )  # comments over 65535 bytes will be truncated
             for file in path_to_zip.rglob("*"):
-                if file in ex_replace or file.name == "crafty.sqlite" or file.is_dir():
+                is_excluded = any(
+                    file.is_relative_to(excluded_path) for excluded_path in ex_replace
+                )
+                if is_excluded or file.name == "crafty.sqlite" or file.is_dir():
                     continue
 
                 try:
