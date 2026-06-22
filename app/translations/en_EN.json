@@ -684,7 +684,12 @@
         "no": "No",
         "no-schedule": "There are currently no schedules for this server. To get started, click",
         "scheduledTasks": "Scheduled Tasks",
-        "yes": "Yes"
+        "yes": "Yes",
+        "runNow": "Run Now",
+        "runNowTitle": "Run Task Now?",
+        "confirmRunNow": "This will immediately execute this task's action. Are you sure?",
+        "cascadeChildren": "Also run chained (reaction) tasks",
+        "taskQueued": "Task has been queued for execution."
     },
     "serverStats": {
         "cpuUsage": "CPU Usage",
