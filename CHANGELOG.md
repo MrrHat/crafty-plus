@@ -1,11 +1,59 @@
 # Changelog
-## --- [4.10.5] - 2026/TBD
+## --- [4.10.8] - 2026/TBD
+### Refactor
+- Remove Unused Exceptions ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1055))
 ### New features
-TBD
+- Add Run Now button to scheduled tasks ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1058))
 ### Bug fixes
-TBD
+- Fix Bedrock Update Failures ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1049))
+- Fix directory downloads in the file manager ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1050))
+- Fix backup exclusions on unix based OSes ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1051))
+- Fix cache refresh button on the creation and update pages ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1059))
+- Fix support logs failing to download due to a typing error ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1061))
+- Fix reaction schedules being removed on edit ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1065))
 ### Tweaks
-TBD
+- Add max 1gb for session.log file for noisy installs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1063))
+<br><br>
+
+## --- [4.10.7] - 2026/06/16
+### Bug fixes
+- Fix python `3.13+` specific notation to add support back for `3.10-12` ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1043))
+- Fix Bedrock server creation and updates due to static `FileHelpers.ssl_file_get()` call ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1044))
+- Fix Java server updates due to static `FileHelpers.ssl_file_get()` call ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1044))
+- Fix modded server installs failing on non-windows environments ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1047))
+- Fix Hytale server creation hanging on "Importing..." ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1041))
+- Fix CPU pinned at 100% after terminal buffer changes ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1045))
+<br><br>
+
+## --- [4.10.6] - 2026/06/15
+### Bug fixes
+- Readd packaging to requirements ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1042))
+<br><br>
+
+## --- [4.10.5] - 2026/06/15
+### Refactor
+- Sonar refactor: server.py ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1003) | [Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1024))
+- Sonar refactor: File Helpers ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1015))
+- Refactor repeated broadcast logic into new Websocket Manager function ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1032))
+### New features
+- Add API method to list backup files ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1014))
+- Add "Stop All Servers" button ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1001))
+### Bug fixes
+- Fix general users not being able to edit themselves ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1016))
+- Improve upload progress bar consistency ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1023))
+- Improve terminal performance for noizy servers ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1022))
+- Allow users to access terminal buffer without log perms ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/869))
+- Fix headers for remote requests agents ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1019))
+- Fix command watcher thread crash when sending command to offline server ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1026))
+- Fix permission checkbox behavior during horizontal scroll ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1030))
+- Fix server control nav not collapsing to dropdown on small screens ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1031))
+- Rework Validate Read Perms to Fail-Shut by Default ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1040))
+### Tweaks
+- Bump cryptography for CVE-2026-26007 ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1017))
+- Fallback code block to automatically parse Java Versions on Arch Linux ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/845))
+- Show total system RAM in dashboard memory tooltip ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1034))
+- Add busy timeout to sqlite connections ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1028))
+- Use exception instead of error in exception handlers ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1038))
 <br><br>
 
 ## --- [4.10.4] - 2026/04/19

@@ -157,7 +157,11 @@
         "stop": "Stop",
         "storage": "Storage",
         "version": "Version",
-        "welcome": "Welcome to Crafty Controller"
+        "welcome": "Welcome to Crafty Controller",
+        "stopAll": "Stop All",
+        "stopAllConfirm": "Are you sure you want to stop all running servers?",
+        "stopAllServers": "Stop All Servers",
+        "stoppingServers": "Please be patient while we stop all servers."
     },
     "datatables": {
         "i18n": {
@@ -680,7 +684,12 @@
         "no": "No",
         "no-schedule": "There are currently no schedules for this server. To get started, click",
         "scheduledTasks": "Scheduled Tasks",
-        "yes": "Yes"
+        "yes": "Yes",
+        "runNow": "Run Now",
+        "runNowTitle": "Run Task Now?",
+        "confirmRunNow": "This will immediately execute this task's action. Are you sure?",
+        "cascadeChildren": "Also run chained (reaction) tasks",
+        "taskQueued": "Task has been queued for execution."
     },
     "serverStats": {
         "cpuUsage": "CPU Usage",

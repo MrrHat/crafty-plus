@@ -82,7 +82,7 @@ class TasksManager:
         try:
             self.tz = get_localzone()
         except ZoneInfoNotFoundError as e:
-            logger.error(
+            logger.exception(
                 "Could not capture time zone from system. Falling back to Europe/London"
                 f" error: {e}"
             )
@@ -185,21 +185,28 @@ class TasksManager:
                         svr.cleanup_server_object()
                         svr.record_server_stats()
                     except Exception as e:
-                        logger.error(
+                        logger.exception(
                             f"Could not find PID for requested termsig. Full error: {e}"
                         )
                 case "backup_server":
                     try:
                         svr.server_backup_threader(cmd["action_id"])
                     except (KeyError, DoesNotExist) as why:
-                        logger.error(
+                        logger.exception(
                             "Failed to run server backup on schedule with error %s",
                             why,
                         )
                 case "update_executable":
                     svr.server_upgrade()
                 case _:
-                    svr.send_command(command)
+                    try:
+                        svr.send_command(command)
+                    except AttributeError:
+                        WebSocketManager().broadcast_to_server_users(
+                            svr.server_id,
+                            "send_error",
+                            "Unable to send commands to a offline server",
+                        )
 
             time.sleep(1)
 
@@ -393,7 +400,7 @@ class TasksManager:
             except Exception as e:
                 Console.error(f"Failed to schedule task with error: {e}.")
                 Console.warning(FAILED_DB_IMPORT_MESSAGE)
-                logger.error(f"Failed to schedule task with error: {e}.")
+                logger.exception(f"Failed to schedule task with error: {e}.")
                 logger.warning(FAILED_DB_IMPORT_MESSAGE)
                 # remove items from DB if task fails to add to apscheduler
                 self.controller.management_helper.delete_scheduled_task(schedule_id)
@@ -518,7 +525,7 @@ class TasksManager:
                 new_job = "error"
                 Console.error(f"Failed to schedule task with error: {e}.")
                 Console.warning(FAILED_DB_IMPORT_MESSAGE)
-                logger.error(f"Failed to schedule task with error: {e}.")
+                logger.exception(f"Failed to schedule task with error: {e}.")
                 logger.warning(FAILED_DB_IMPORT_MESSAGE)
                 # remove items from DB if task fails to add to apscheduler
                 self.controller.management_helper.delete_scheduled_task(sch_id)
@@ -613,6 +620,43 @@ class TasksManager:
             self._remove_scheduler_job_if_present(sch_id)
         return None
 
+    def run_task_now(self, schedule_id, user_id, server_id, cascade=False):
+        """Immediately queue a scheduled task's action for execution.
+
+        Looks up the task, confirms it belongs to the given server, and places
+        its command on the management command queue so it runs through the same
+        path as a normally scheduled job.
+
+        Args:
+            schedule_id: ID of the scheduled task to run.
+            user_id: ID of the user requesting the run (recorded with the command).
+            server_id: ID of the server the task is expected to belong to.
+            cascade: When True, also trigger any enabled reaction tasks chained
+                to this task, after their configured delays. Defaults to False so
+                a manual run executes only the selected task.
+
+        Raises:
+            ValueError: If the task does not belong to the given server.
+        """
+        task = self.controller.management.get_scheduled_task(schedule_id)
+        task_server_id = task["server_id"]
+        if isinstance(task_server_id, dict):
+            task_server_id = task_server_id["server_id"]
+        if str(task_server_id) != str(server_id):
+            raise ValueError(
+                f"Task {schedule_id} does not belong to server {server_id}"
+            )
+        self.controller.management.queue_command(
+            {
+                "server_id": task_server_id,
+                "user_id": user_id,
+                "command": task["command"],
+                "action_id": task.get("action_id"),
+            }
+        )
+        if cascade:
+            self._trigger_child_schedules(schedule_id, task_server_id)
+
     def update_job(self, sch_id, job_data):
         # Checks to make sure some doofus didn't actually make the newly
         # created task a child of itself.
@@ -625,14 +669,13 @@ class TasksManager:
         if job_data is None:
             return
 
-        if job_data["interval"] != "reaction":
+        if job_data["interval_type"] != "reaction":
             self._remove_scheduler_job_if_present(
                 sch_id,
                 "No job found in update job. "
                 "Assuming it was previously disabled. Starting new job.",
             )
-
-        if job_data["enabled"] and job_data["interval"] != "reaction":
+        if job_data["enabled"] and (job_data["interval_type"] != "reaction"):
             command_data: QueuedCommandData = {
                 "server_id": job_data["server_id"],
                 "user_id": self.users_controller.get_id_by_name("system"),
@@ -708,13 +751,26 @@ class TasksManager:
         # check for any child tasks for this. It's kind of backward,
         # but this makes DB management a lot easier. One to one
         # instead of one to many.
+        self._trigger_child_schedules(task.schedule_id, task.server_id)
+
+    def _trigger_child_schedules(self, parent_id, server_id):
+        """Queue any enabled reaction tasks chained to a parent task.
+
+        Reaction (child) tasks have no schedule of their own; they run only as
+        a side effect of their parent task firing. Each matching child is queued
+        after its configured delay, mirroring how a normally scheduled parent
+        triggers its children.
+
+        Args:
+            parent_id: Schedule ID of the parent task that just ran.
+            server_id: ID of the server the tasks belong to.
+        """
         for schedule in HelpersManagement.get_child_schedules_by_server(
-            task.schedule_id, task.server_id
+            parent_id, server_id
         ):
-            # event job IDs are strings so we need to look at
-            # this as the same data type.
+            # parent IDs are stored as strings, so compare as strings.
             if (
-                str(schedule.parent) == str(event.job_id)
+                str(schedule.parent) == str(parent_id)
                 and schedule.interval_type == "reaction"
                 and schedule.enabled
             ):
@@ -807,6 +863,7 @@ class TasksManager:
                                 "cpu_max_freq": host_stats.get("cpu_max_freq"),
                                 "mem_percent": host_stats.get("mem_percent"),
                                 "mem_usage": host_stats.get("mem_usage"),
+                                "mem_total": host_stats.get("mem_total"),
                                 "disk_usage": json.loads(
                                     host_stats.get("disk_json").replace("'", '"')
                                 ),
@@ -827,6 +884,7 @@ class TasksManager:
                                 "cpu_max_freq": host_stats.get("cpu_max_freq"),
                                 "mem_percent": host_stats.get("mem_percent"),
                                 "mem_usage": host_stats.get("mem_usage"),
+                                "mem_total": host_stats.get("mem_total"),
                                 "disk_usage": {},
                             },
                         )
@@ -898,7 +956,7 @@ class TasksManager:
                 else:
                     path_to_remove.unlink()
             except OSError as why:
-                logger.error(f"Error removing file {path_to_remove}: {why}.")
+                logger.exception(f"Error removing file {path_to_remove}: {why}.")
 
     def check_for_updates(self) -> None:
         """Checks for updates to crafty

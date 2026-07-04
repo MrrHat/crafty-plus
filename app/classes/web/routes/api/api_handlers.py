@@ -64,6 +64,9 @@ from app.classes.web.routes.api.servers.server.tasks.task.children import (
 from app.classes.web.routes.api.servers.server.tasks.task.index import (
     ApiServersServerTasksTaskIndexHandler,
 )
+from app.classes.web.routes.api.servers.server.tasks.task.run import (
+    ApiServersServerTasksTaskRunHandler,
+)
 from app.classes.web.routes.api.servers.server.webhooks.index import (
     ApiServersServerWebhooksIndexHandler,
 )
@@ -110,6 +113,9 @@ from app.classes.web.routes.api.crafty.exe_cache import (
     ApiCraftySteamCacheIndexHandler,
 )
 from app.classes.web.routes.api.crafty.antilockout.index import ApiCraftyLockoutHandler
+from app.classes.web.routes.api.servers.server.stop_all import (
+    ApiServersServerStopAllHandler,
+)
 
 
 def api_handlers(handler_args):
@@ -333,6 +339,11 @@ def api_handlers(handler_args):
             handler_args,
         ),
         (
+            r"/api/v2/servers/stop_all/?",
+            ApiServersServerStopAllHandler,
+            handler_args,
+        ),
+        (
             r"/api/v2/servers/([a-z0-9-]+)/update/config/?",
             ApiServersServerUpdateConfig,
             handler_args,
@@ -420,6 +431,11 @@ def api_handlers(handler_args):
         (
             r"/api/v2/servers/([a-z0-9-]+)/tasks/([0-9]+)/children/?",
             ApiServersServerTasksTaskChildrenHandler,
+            handler_args,
+        ),
+        (
+            r"/api/v2/servers/([a-z0-9-]+)/tasks/([0-9]+)/run/?",
+            ApiServersServerTasksTaskRunHandler,
             handler_args,
         ),
         (
