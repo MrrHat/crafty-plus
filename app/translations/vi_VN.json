@@ -73,7 +73,7 @@
         "virtual_terminal_lines": "Cho phép bao nhiêu dòng trong terminal máy chủ của bạn",
         "enable_passkey_auth": "Kích hoạt xác thực bằng mật khẩu (WebAuthn)",
         "passkey_rp_name": "Tên dựa vào Passkey (hiển thị trong lời nhắc xác thực)",
-        "silent_notif_fields": "Các trường người dùng tự động ghi lại thay đổi mà không hiển thị thông báo (không có cửa sổ bật lên)"
+        "silent_notif_fields": "Các trường người dùng tự động ghi lại thay đổi mà không hiển thị thông báo (không có cửa sổ bật lên)."
     },
     "credits": {
         "developmentTeam": "Nhóm phát triển",
@@ -232,7 +232,7 @@
         "agree": "Đồng ý",
         "bedrockError": "Hiện không thể tải xuống phiên bản Bedrock. Vui lòng kiểm tra",
         "bigBucket1": "Kiểm tra trạng thái hệ thống Big Bucket thất bại. Vui lòng kiểm tra lại",
-        "bigBucket2": "Để có được thông tin cập nhật nhất",
+        "bigBucket2": "Để có được thông tin cập nhật nhất.",
         "cancel": "Hủy bỏ",
         "contact": "Liên hệ bộ phận hỗ trợ của Crafty Control qua Discord",
         "craftyStatus": "Trang trạng thái của Crafty",
@@ -451,7 +451,7 @@
         "edit": "Chỉnh sửa",
         "enabled": "Đã bật",
         "excludedBackups": "Các đường dẫn bị loại trừ: ",
-        "excludedChoose": "Chọn các đường dẫn bạn muốn loại trừ khỏi bản sao lưu của mình.",
+        "excludedChoose": "Chọn các đường dẫn bạn muốn loại trừ khỏi bản sao lưu của mình",
         "exclusionsTitle": "Loại trừ dự phòng",
         "failed": "Thất bại",
         "inplace": "Khôi phục các tệp sao lưu tại chỗ - các tệp không có trong tệp zip sao lưu sẽ vẫn nằm trong thư mục máy chủ",
@@ -479,7 +479,7 @@
         "storageLocationDesc": "Bạn muốn lưu trữ bản sao lưu ở đâu?"
     },
     "serverConfig": {
-        "bePatientDelete": "Vui lòng chờ trong khi chúng tôi xóa máy chủ của bạn khỏi bảng điều khiển Crafty. Màn hình này sẽ đóng lại sau vài phút",
+        "bePatientDelete": "Vui lòng chờ trong khi chúng tôi xóa máy chủ của bạn khỏi bảng điều khiển Crafty. Màn hình này sẽ đóng lại sau vài phút.",
         "bePatientDeleteFiles": "Vui lòng kiên nhẫn trong khi chúng tôi gỡ bỏ máy chủ của bạn khỏi bảng điều khiển Crafty và xóa tất cả các tệp. Màn hình này sẽ đóng lại sau vài phút.",
         "bePatientUpdate": "Vui lòng chờ trong khi chúng tôi cập nhật máy chủ. Thời gian tải xuống có thể khác nhau tùy thuộc vào tốc độ internet của bạn.<br /> Màn hình này sẽ được làm mới trong giây lát",
         "cancel": "Hủy bỏ",
@@ -512,7 +512,7 @@
         "serverExecutable": "Máy chủ có thể thực thi được",
         "serverExecutableDesc": "Tệp thực thi mà bạn gọi trong lệnh thực thi máy chủ của mình. Đây là tệp mà chúng ta sẽ cập nhật.",
         "serverExecutionCommand": "Lệnh thực thi máy chủ",
-        "serverExecutionCommandDesc": "Điều gì sẽ được khởi động tại một terminal bí mật?",
+        "serverExecutionCommandDesc": "Điều gì sẽ được khởi động tại một terminal bí mật",
         "serverIP": "IP máy chủ",
         "serverIPDesc": "IP mà Crafty nên kết nối để lấy số liệu thống kê (Hãy thử sử dụng một địa chỉ IP thực thay vì 127.0.0.1 nếu bạn gặp sự cố)",
         "serverLogLocation": "Vị trí nhật ký máy chủ",
@@ -838,7 +838,7 @@
         "selfDisable": "Bạn không thể vô hiệu hóa tài khoản của chính mình",
         "super": "Siêu người dùng",
         "totpHeader": "Xác thực đa yếu tố",
-        "passkeyHeader": "Passkey",
+        "passkeyHeader": "Mã truy cập",
         "totpIdReq": "Cần có mã định danh MFA để yêu cầu",
         "userLang": "Ngôn ngữ người dùng",
         "userName": "Tên người dùng",
