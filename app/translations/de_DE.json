@@ -117,7 +117,11 @@
         "welcome": "Willkommen bei Crafty Controller",
         "columnSettings": "Spalten-Einstellungen",
         "port": "Port",
-        "serverIcon": "Server-Symbol"
+        "serverIcon": "Server-Symbol",
+        "stopAll": "Alle anhalten",
+        "stopAllConfirm": "Sicher, dass alle laufenden Server gestoppt werden sollen?",
+        "stopAllServers": "Alle Server anhalten",
+        "stoppingServers": "Einen moment, während alle Server angehalten werden."
     },
     "datatables": {
         "i18n": {
@@ -571,7 +575,12 @@
         "no-schedule": "Derzeit gibt es keine Zeitpläne für diesen Server. Um loszulegen, klicke",
         "scheduledTasks": "Geplante Aufgaben",
         "yes": "Ja",
-        "backupPol": "Backup-Richtlinie"
+        "backupPol": "Backup-Richtlinie",
+        "runNow": "Jetzt starten",
+        "runNowTitle": "Aufgabe jetzt starten?",
+        "confirmRunNow": "Diese Aktion wird die Aufgabe sofort ausführen. Sicher?",
+        "cascadeChildren": "Auch die verknüpften Aufgaben ausführen",
+        "taskQueued": "Aufgabe wurde der Aufgabenwarteschlange hinzugefügt."
     },
     "serverStats": {
         "cpuUsage": "CPU-Nutzung",
