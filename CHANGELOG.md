@@ -11,6 +11,7 @@
 - Fix cache refresh button on the creation and update pages ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1059))
 - Fix support logs failing to download due to a typing error ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1061))
 - Fix reaction schedules being removed on edit ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1065))
+- [`CVE-2026-13716`] Security: Harden `ApiFilesUploadHandler` ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1062))
 ### Tweaks
 - Add max 1gb for session.log file for noisy installs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1063))
 <br><br>
