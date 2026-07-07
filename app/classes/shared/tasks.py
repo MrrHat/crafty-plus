@@ -669,14 +669,13 @@ class TasksManager:
         if job_data is None:
             return
 
-        if job_data["interval"] != "reaction":
+        if job_data["interval_type"] != "reaction":
             self._remove_scheduler_job_if_present(
                 sch_id,
                 "No job found in update job. "
                 "Assuming it was previously disabled. Starting new job.",
             )
-
-        if job_data["enabled"] and job_data["interval"] != "reaction":
+        if job_data["enabled"] and (job_data["interval_type"] != "reaction"):
             command_data: QueuedCommandData = {
                 "server_id": job_data["server_id"],
                 "user_id": self.users_controller.get_id_by_name("system"),

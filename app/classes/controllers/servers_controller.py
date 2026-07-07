@@ -17,6 +17,8 @@ from app.classes.shared.main_models import DatabaseShortcuts
 
 from app.classes.remote_stats.stats import Stats
 
+from app.classes.servers import hytale
+
 from app.classes.models.servers import HelperServers
 from app.classes.models.users import HelperUsers, ApiKeys
 from app.classes.models.server_permissions import (
@@ -607,9 +609,27 @@ class ServersController(metaclass=Singleton):
 
     @staticmethod
     def get_banned_players(server_id):
+        """Return the banned players for a server in a uniform shape.
+
+        Both the Minecraft and Hytale formats are normalised to a list of
+        dicts carrying ``name``, ``source``, ``reason`` and ``created`` keys so
+        downstream rendering (the banned-players table and the player-list
+        filtering) can treat them identically regardless of server type.
+        """
         srv = ServersController().get_server_instance_by_id(server_id)
         stats = srv.stats_helper.get_server_stats()
         server_path = stats["server_id"]["path"]
+        server_type = HelperServers.get_server_type_by_id(server_id)
+
+        match server_type:
+            case "hytale":
+                return hytale.get_banned_players(server_path)
+            case _:
+                return ServersController._get_minecraft_banned_players(server_path)
+
+    @staticmethod
+    def _get_minecraft_banned_players(server_path):
+        """Read and return the entries from a Minecraft ``banned-players.json``."""
         path = os.path.join(server_path, "banned-players.json")
 
         try:
