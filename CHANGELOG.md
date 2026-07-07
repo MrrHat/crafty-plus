@@ -1,11 +1,18 @@
 # Changelog
-## --- [4.11.0] - 2026/TBD
+## --- [4.10.8] - 2026/TBD
+### Refactor
+- Remove Unused Exceptions ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1055))
 ### New features
-TBD
+- Add Run Now button to scheduled tasks ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1058))
 ### Bug fixes
-TBD
+- Fix Bedrock Update Failures ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1049))
+- Fix directory downloads in the file manager ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1050))
+- Fix backup exclusions on unix based OSes ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1051))
+- Fix cache refresh button on the creation and update pages ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1059))
+- Fix support logs failing to download due to a typing error ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1061))
+- Fix reaction schedules being removed on edit ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1065))
 ### Tweaks
-TBD
+- Add max 1gb for session.log file for noisy installs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1063))
 <br><br>
 
 ## --- [4.10.7] - 2026/06/16

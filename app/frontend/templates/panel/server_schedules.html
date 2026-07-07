@@ -130,6 +130,10 @@
                               class="btn btn-info">
                               <i class="ph-fill ph-pencil-simple"></i>
                             </button>
+                            <button data-sch={{ schedule.schedule_id }} class="btn btn-success run_now_button"
+                              title="{{ translate('serverSchedules', 'runNow', data['lang']) }}">
+                              <i class="ph-fill ph-play" aria-hidden="true"></i>
+                            </button>
                             <button data-sch={{ schedule.schedule_id }} class="btn btn-danger del_button">
                               <i class="ph-fill ph-trash-simple" aria-hidden="true"></i>
                             </button>
@@ -240,6 +244,11 @@
                                   <i class="ph-fill ph-pencil-simple"></i> {{ translate('serverSchedules', 'edit',
                                   data['lang'])
                                   }}
+                                </button>
+                                <button data-sch={{ schedule.schedule_id }} class="btn btn-success run_now_button">
+                                  <i class="ph-fill ph-play" aria-hidden="true"></i> {{
+                                  translate('serverSchedules',
+                                  'runNow', data['lang']) }}
                                 </button>
                                 <button data-sch={{ schedule.schedule_id }} class="btn btn-danger del_button">
                                   <i class="ph-fill ph-trash-simple" aria-hidden="true"></i> {{
@@ -446,6 +455,58 @@
     let responseData = await res;
     if (responseData.statusText === "OK") {
       globalThis.location.reload();
+    }
+  }
+
+  $(".run_now_button").click(function () {
+    var sch_id = $(this).data('sch');
+
+    bootbox.confirm({
+      title: "{{ translate('serverSchedules', 'runNowTitle', data['lang']) }}",
+      message: `{{ translate('serverSchedules', 'confirmRunNow', data['lang']) }}`
+        + `<label class="mt-3" style="display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;font-weight:normal;margin-bottom:0;">`
+        + `<input type="checkbox" id="run_now_cascade">`
+        + `<span>{{ translate('serverSchedules', 'cascadeChildren', data['lang']) }}</span></label>`,
+      buttons: {
+        cancel: {
+          label: `<i class="ph-bold ph-x"></i> {{ translate("serverSchedules", "cancel", data['lang']) }}`
+        },
+        confirm: {
+          className: 'btn-outline-success',
+          label: `<i class="ph-bold ph-play"></i> {{ translate("serverSchedules", "runNow", data['lang']) }}`
+        },
+      },
+      callback: function (result) {
+        if (result) {
+          const cascade = $('#run_now_cascade').is(':checked');
+          run_task_now(sch_id, serverId, cascade);
+        }
+      }
+    });
+  });
+
+  async function run_task_now(sch_id, id, cascade) {
+    const token = getCookie("_xsrf")
+    const btn = $(`.run_now_button[data-sch='${sch_id}']`);
+    btn.prop('disabled', true);
+
+    try {
+      let res = await fetch(`/api/v2/servers/${id}/tasks/${sch_id}/run`, {
+        method: 'POST',
+        headers: {
+          'token': token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cascade: cascade }),
+      });
+      if (res.ok) {
+        bootbox.alert("{{ translate('serverSchedules', 'taskQueued', data['lang']) }}");
+      } else {
+        let errData = await res.json();
+        bootbox.alert("Error: " + (errData.error_data || errData.error));
+      }
+    } finally {
+      btn.prop('disabled', false);
     }
   }
 
