@@ -111,13 +111,17 @@
         "start": "Başlat",
         "starting": "Gecikmeli Başlangıç",
         "status": "Durum",
-        "stop": "Dur",
+        "stop": "Durdur",
         "storage": "Saklama Alanı",
         "version": "Sürüm",
         "welcome": "Crafty Controller'a Hoşgeldiniz",
         "serverIcon": "Sunucu Simgesi",
         "port": "Port",
-        "columnSettings": "Sütun Ayarları"
+        "columnSettings": "Sütun Ayarları",
+        "stopAll": "Hepsini Durdur",
+        "stopAllConfirm": "Çalışmakta olan tüm sunucuları durdurmak istediğinizden emin misiniz?",
+        "stopAllServers": "Tüm Sunucuları Durdur",
+        "stoppingServers": "Tüm sunucuları durdurken lütfen sabırlı olun."
     },
     "datatables": {
         "i18n": {
@@ -571,7 +575,12 @@
         "no-schedule": "Şu anda bu sunucu için herhangi bir zamanlama bulunmamaktadır. Başlamak için:",
         "scheduledTasks": "Zamanlanmış Görevler",
         "yes": "Evet",
-        "backupPol": "Yedekleme Politikası"
+        "backupPol": "Yedekleme Politikası",
+        "runNow": "Şimdi Çalıştır",
+        "runNowTitle": "Görevi şimdi çalıştır?",
+        "confirmRunNow": "Bu, görevin eylemini hemen gerçekleştirecektir. Emin misiniz?",
+        "cascadeChildren": "Ayrıca zincirleme (reaksiyon) görevlerini de çalıştır",
+        "taskQueued": "Görev yürütülmek üzere sıraya alındı."
     },
     "serverStats": {
         "cpuUsage": "CPU Kullanımı",
