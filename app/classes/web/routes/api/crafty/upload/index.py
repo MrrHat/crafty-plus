@@ -345,10 +345,17 @@ class ApiFilesUploadHandler(BaseApiHandler):
             )
 
         # File paths
-        file_path = os.path.join(self.upload_dir, self.filename)
-        chunk_path = os.path.join(
-            self.temp_dir, f"{self.filename}.part{self.chunk_index}"
-        )
+        file_path = Path(self.upload_dir, self.filename)
+        chunk_path = Path(self.temp_dir, f"{self.filename}.part{self.chunk_index}")
+        try:
+            self.helper.validate_traversal(
+                Path(self.temp_dir).resolve(), chunk_path.resolve()
+            )
+        except ValueError as why:
+            logger.exception("Failed to upload files with error: %s", str(why))
+            return self.finish_json(
+                400, {"status": "error", "error": "BAD REQUEST", "error_data": str(why)}
+            )
 
         lock = self.get_lock(self.file_id)  # Capture async lock to avoid race condition
 
