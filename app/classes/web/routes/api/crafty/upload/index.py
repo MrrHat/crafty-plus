@@ -42,10 +42,10 @@ ARCHIVE_MIME_TYPES = [
 ]
 
 CUSTOM_GRAPHICS = "app/frontend/static/assets/images/auth/custom"
+FAILED_MSG = "Failed to upload files with error: %s"
 
 
 class ApiFilesUploadHandler(BaseApiHandler):
-
     upload_locks = {}
 
     def get_lock(self, key: str) -> asyncio.Lock:
@@ -55,58 +55,46 @@ class ApiFilesUploadHandler(BaseApiHandler):
         return self.upload_locks[key]
 
     def check_traversal(self, upload_type: str, **kwargs):
-        """Matches upload type and checks default upload location for traversal
-
-        Args:
-            upload_type (str): the type of upload we're evaluating
-            file_name (str): upload target file name
-            **kwargs: "server_id" when doing server uploads
-
-        Raises:
-            ValueError: If the file_name contains path traversal sequences
-                (e.g, '../') or attempts to escape the default upload location.
-            ValueError: If file_name or upload_type are null.
-        """
+        """Matches upload type and checks default upload location for traversal"""
         if not self.filename:
             raise ValueError
+
         match upload_type:
-            # Each of these cases must return a null value if evaluated correctly
-            # Failsafe value error is at the bottom of method through all cases.
             case "server_upload":
-                self.helper.validate_traversal(
-                    Path(
-                        self.controller.management.get_master_server_dir(),
-                        kwargs.get("server_id"),
-                    ).resolve(),
-                    Path(
-                        self.controller.management.get_master_server_dir(),
-                        kwargs.get("server_id"),
-                        self.filename,
-                    ).resolve(),
+                server_path = Path(
+                    self.controller.management.get_master_server_dir(),
+                    kwargs.get("server_id"),
                 )
-                return
+                self.upload_dir = pathlib.Path(
+                    self.file_helper.get_absolute_path(
+                        str(server_path), str(Path(server_path, self.location))
+                    )
+                ).resolve()
+                base_dir = Path(
+                    self.controller.management.get_master_server_dir(),
+                    kwargs.get("server_id"),
+                ).resolve()
+                self.helper.validate_traversal(
+                    base_dir, Path(self.upload_dir, self.filename).resolve()
+                )
             case "import":
+                self.upload_dir = Path(self.controller.project_root, "import", "upload")
                 self.helper.validate_traversal(
                     Path(self.controller.project_root, "import", "upload").resolve(),
                     Path(
                         self.controller.project_root, "import", "upload", self.filename
                     ).resolve(),
                 )
-                return
             case "background":
-                self.helper.validate_traversal(
-                    Path(
-                        self.controller.project_root,
-                        CUSTOM_GRAPHICS,
-                    ).resolve(),
-                    Path(
-                        self.controller.project_root,
-                        CUSTOM_GRAPHICS,
-                        self.filename,
-                    ).resolve(),
+                self.upload_dir = os.path.join(
+                    self.controller.project_root, CUSTOM_GRAPHICS
                 )
-                return
-        raise ValueError("No suitable upload type found.")
+                self.helper.validate_traversal(
+                    Path(self.controller.project_root, CUSTOM_GRAPHICS).resolve(),
+                    Path(self.upload_dir, self.filename).resolve(),
+                )
+            case _:
+                raise ValueError("No suitable upload type found.")
 
     async def post(self, server_id=None):
         auth_data = self.authenticate_user()
@@ -114,135 +102,23 @@ class ApiFilesUploadHandler(BaseApiHandler):
             return
 
         upload_type = self.request.headers.get("type")
-        accepted_types = []
 
-        if server_id:
-            # Check to make sure user is authorized for the server
-            if server_id not in [str(x["server_id"]) for x in auth_data[0]]:
-                # if the user doesn't have access to the server, return an error
-                return self.finish_json(
-                    400,
-                    {
-                        "status": "error",
-                        "error": "NOT_AUTHORIZED",
-                        "error_data": self.helper.translation.translate(
-                            "validators", "insufficientPerms", auth_data[4]["lang"]
-                        ),
-                    },
-                )
-            mask = self.controller.server_perms.get_lowest_api_perm_mask(
-                self.controller.server_perms.get_user_permissions_mask(
-                    auth_data[4]["user_id"], server_id
-                ),
-                auth_data[5],
-            )
-            # Make sure user has file access for the server
-            server_permissions = self.controller.server_perms.get_permissions(mask)
-            if EnumPermissionsServer.FILES not in server_permissions:
-                # if the user doesn't have Files permission, return an error
-                return self.finish_json(
-                    400,
-                    {
-                        "status": "error",
-                        "error": "NOT_AUTHORIZED",
-                        "error_data": self.helper.translation.translate(
-                            "validators", "insufficientPerms", auth_data[4]["lang"]
-                        ),
-                    },
-                )
+        # 1. Authorize user and resolve types
+        auth_result = self._authorize_upload(auth_data, server_id, upload_type)
+        if not auth_result:
+            return self._finish_unauthorized(auth_data)
+        u_type, accepted_types = auth_result
 
-            u_type = "server_upload"
-        # Make sure user is a super user if they're changing panel settings
-        elif auth_data[4]["superuser"] and upload_type == "background":
-            u_type = "admin_config"
-            self.upload_dir = os.path.join(
-                self.controller.project_root,
-                CUSTOM_GRAPHICS,
-            )
-            accepted_types = IMAGE_MIME_TYPES
-        elif upload_type == "import":
-            # Check that user can make servers
-            if (
-                not self.controller.crafty_perms.can_create_server(
-                    auth_data[4]["user_id"]
-                )
-                and not auth_data[4]["superuser"]
-            ):
-                return self.finish_json(
-                    400,
-                    {
-                        "status": "error",
-                        "error": "NOT_AUTHORIZED",
-                        "data": {"message": ""},
-                    },
-                )
-            # Set directory to upload import dir
-            self.upload_dir = Path(self.controller.project_root, "import", "upload")
-            u_type = "server_import"
-            accepted_types = ARCHIVE_MIME_TYPES
-        else:
-            return self.finish_json(
-                400,
-                {
-                    "status": "error",
-                    "error": "NOT_AUTHORIZED",
-                    "data": {"message": ""},
-                },
-            )
-        # Get the headers from the request
-        self.chunk_hash = self.request.headers.get("chunkHash", 0)
-        self.file_id = self.request.headers.get("fileId")
-        self.chunked = self.request.headers.get("chunked", False)
-        self.filename = self.request.headers.get("fileName", None)
-        try:
-            if server_id:
-                self.check_traversal(upload_type, server_id=server_id)
-            else:
-                self.check_traversal(upload_type)
-        except ValueError as why:
-            logger.exception("Failed to upload files with error: %s", str(why))
-            return self.finish_json(
-                400, {"status": "error", "error": "BAD REQUEST", "error_data": str(why)}
-            )
-        try:
-            file_size = int(self.request.headers.get("fileSize", None))
-            total_chunks = int(self.request.headers.get("totalChunks", 0))
-        except TypeError as why:
-            return self.finish_json(
-                400, {"status": "error", "error": "TYPE ERROR", "error_data": str(why)}
-            )
-        self.chunk_index = self.request.headers.get("chunkId")
-        self.temp_dir = os.path.join(self.controller.project_root, "temp", self.file_id)
-
-        if u_type == "server_upload":
-            # Check for absolute or relative path. Absolute paths should be deprecated
-            self.upload_dir = self.request.headers.get("location", None)
-            # Check for absolute or relative path. Absolute paths should be deprecated
-            server_path = self.controller.servers.get_server_data_by_id(server_id)[
-                "path"
-            ]
-            self.upload_dir = pathlib.Path(
-                self.file_helper.get_absolute_path(server_path, self.upload_dir)
-            ).resolve()
-        # Check to make sure the file type we're being sent is what we're expecting
-        if (
-            self.file_helper.check_mime_types(self.filename) not in accepted_types
-            and u_type != "server_upload"
+        # 2. Extract and validate headers/paths
+        if not self._parse_and_validate_request(
+            server_id, upload_type, accepted_types, u_type
         ):
-            return self.finish_json(
-                422,
-                {
-                    "status": "error",
-                    "error": "INVALID FILE TYPE",
-                    "data": {
-                        "message": f"Invalid File Type only accepts {accepted_types}"
-                    },
-                },
-            )
-        _total, _used, free = shutil.disk_usage(self.upload_dir)
+            return
 
-        # Check to see if we have enough space
-        if free <= file_size:
+        # 3. Check disk space
+        file_size = int(self.request.headers.get("fileSize", 0))
+        total_chunks = int(self.request.headers.get("totalChunks", 0))
+        if not self._has_enough_space(file_size):
             return self.finish_json(
                 507,
                 {
@@ -252,85 +128,154 @@ class ApiFilesUploadHandler(BaseApiHandler):
                 },
             )
 
-        # If this has no chunk index we know it's the inital request
+        # 4. Handle early chunked initiation or structure prep
         if self.chunked and not self.chunk_index:
             return self.finish_json(
                 200, {"status": "ok", "data": {"file-id": self.file_id}}
             )
-        # Create the upload and temp directories if they don't exist
+
         os.makedirs(self.upload_dir, exist_ok=True)
 
-        # Check for chunked header. We will handle this request differently
-        # if it doesn't exist
+        # 5. Route to specific processor
         if not self.chunked:
-            # Write the file directly to the upload dir
-            async with await anyio.open_file(
-                os.path.join(self.upload_dir, self.filename), "wb"
-            ) as file:
-                chunk = self.request.body
-                if chunk:
-                    await file.write(chunk)
-            # We'll check the file hash against the sent hash once the file is
-            # written. We cannot check this buffer.
-            calculated_hash = self.helper.crypto_helper.calculate_file_hash_sha256(
-                os.path.join(self.upload_dir, self.filename)
-            )
-            logger.info(
-                f"File upload completed. Filename: {self.filename} Type: {u_type}"
-            )
-            return self.finish_json(
-                200,
-                {
-                    "status": "completed",
-                    "data": {"message": "File uploaded successfully"},
-                },
-            )
-        # Since this is a chunked upload we'll create the temp dir for parts.
-        os.makedirs(self.temp_dir, exist_ok=True)
+            return await self._process_non_chunked(u_type)
 
-        # Read headers and query parameters
-        content_length = int(self.request.headers.get("Content-Length"))
-        if content_length <= 0:
-            logger.error(
-                f"File upload failed. Filename: {self.filename}"
-                f"Type: {u_type} Error: INVALID CONTENT LENGTH"
+        return await self._process_chunked(u_type, total_chunks, auth_data, server_id)
+
+    def _authorize_upload(self, auth_data, server_id, upload_type):
+        """Determines if user is authorized and returns (u_type, accepted_types)."""
+        if server_id:
+            if server_id not in [str(x["server_id"]) for x in auth_data[0]]:
+                return None
+            mask = self.controller.server_perms.get_lowest_api_perm_mask(
+                self.controller.server_perms.get_user_permissions_mask(
+                    auth_data[4]["user_id"], server_id
+                ),
+                auth_data[5],
             )
-            return self.finish_json(
-                400,
+            if (
+                EnumPermissionsServer.FILES
+                not in self.controller.server_perms.get_permissions(mask)
+            ):
+                return None
+            return "server_upload", []
+
+        if auth_data[4]["superuser"] and upload_type == "background":
+            return "admin_config", IMAGE_MIME_TYPES
+
+        if upload_type == "import":
+            can_create = self.controller.crafty_perms.can_create_server(
+                auth_data[4]["user_id"]
+            )
+            if can_create or auth_data[4]["superuser"]:
+                return "server_import", ARCHIVE_MIME_TYPES
+
+        return None
+
+    def _finish_unauthorized(self, auth_data):
+        return self.finish_json(
+            400,
+            {
+                "status": "error",
+                "error": "NOT_AUTHORIZED",
+                "error_data": self.helper.translation.translate(
+                    "validators", "insufficientPerms", auth_data[4]["lang"]
+                ),
+            },
+        )
+
+    def _parse_and_validate_request(
+        self, server_id, upload_type, accepted_types, u_type
+    ) -> bool:
+        """Parses headers and runs path traversal validations.
+        Returns False if error response sent."""
+        self.chunk_hash = self.request.headers.get("chunkHash", 0)
+        self.file_id = self.request.headers.get("fileId")
+        self.chunked = self.request.headers.get("chunked", False)
+        self.filename = self.request.headers.get("fileName", None)
+        self.location = self.request.headers.get("location", None)
+        self.chunk_index = self.request.headers.get("chunkId")
+        self.temp_dir = Path(self.controller.project_root, "temp", self.file_id)
+
+        try:
+            self.check_traversal(upload_type, server_id=server_id)
+            self.helper.validate_traversal(
+                Path(self.controller.project_root, "temp").resolve(),
+                self.temp_dir.resolve(),
+            )
+        except ValueError as why:
+            logger.exception(FAILED_MSG, str(why))
+            self.finish_json(
+                400, {"status": "error", "error": "BAD REQUEST", "error_data": str(why)}
+            )
+            return False
+
+        if (
+            u_type != "server_upload"
+            and self.file_helper.check_mime_types(self.filename) not in accepted_types
+        ):
+            self.finish_json(
+                422,
                 {
                     "status": "error",
-                    "error": "INVALID CONTENT LENGTH",
-                    "data": {"message": "Invalid content length"},
-                },
-            )
-
-        # At this point filename, chunk index and total chunks are required
-        # in the request
-        if not self.filename or self.chunk_index is None:
-            logger.error(
-                f"File upload failed. Filename: {self.filename}"
-                f"Type: {u_type} Error: CHUNK INDEX NOT FOUND"
-            )
-            return self.finish_json(
-                400,
-                {
-                    "status": "error",
-                    "error": "INDEX ERROR",
+                    "error": "INVALID FILE TYPE",
                     "data": {
-                        "message": "Filename, chunk_index,"
-                        " and total_chunks are required"
+                        "message": f"Invalid File Type only accepts {accepted_types}"
                     },
                 },
             )
+            return False
 
-        # Calculate the hash of the buffer and compare it against the expected hash
+        return True
+
+    def _has_enough_space(self, file_size: int) -> bool:
+        _, _, free = shutil.disk_usage(self.upload_dir)
+        return free > file_size
+
+    async def _process_non_chunked(self, u_type: str):
+        """Directly writes complete files."""
+        file_path = os.path.join(self.upload_dir, self.filename)
+        async with await anyio.open_file(file_path, "wb") as file:
+            chunk = self.request.body
+            if chunk:
+                await file.write(chunk)
+
+        logger.info(f"File upload completed. Filename: {self.filename} Type: {u_type}")
+        return self.finish_json(
+            200,
+            {"status": "completed", "data": {"message": "File uploaded successfully"}},
+        )
+
+    async def _process_chunked(
+        self, u_type: str, total_chunks: int, auth_data, server_id
+    ):
+        """Processes incoming file chunks, validates integrity, and merges them."""
+        os.makedirs(self.temp_dir, exist_ok=True)
+        content_length = int(self.request.headers.get("Content-Length", 0))
+
+        if content_length <= 0 or not self.filename or self.chunk_index is None:
+            logger.error(
+                "File upload failed. Filename: %s Type: %s Error: Validation Failed",
+                self.filename,
+                u_type,
+            )
+            return self.finish_json(
+                400,
+                {
+                    "status": "error",
+                    "error": "BAD_REQUEST",
+                    "data": {"message": "Invalid request parameters"},
+                },
+            )
+
         calculated_hash = self.helper.crypto_helper.calculate_buffer_hash(
             self.request.body
         )
         if str(self.chunk_hash) != str(calculated_hash):
             logger.error(
-                f"File upload failed. Filename: {self.filename}"
-                f"Type: {u_type} Error: INVALID HASH"
+                "File upload failed. Filename: %s Type: %s Error: INVALID HASH",
+                self.filename,
+                u_type,
             )
             return self.finish_json(
                 400,
@@ -338,88 +283,47 @@ class ApiFilesUploadHandler(BaseApiHandler):
                     "status": "error",
                     "error": "INVALID_HASH",
                     "data": {
-                        "message": "Hash recieved does not match reported sent hash.",
+                        "message": "Hash received does not match reported sent hash.",
                         "chunk_id": self.chunk_index,
                     },
                 },
             )
 
-        # File paths
         file_path = Path(self.upload_dir, self.filename)
         chunk_path = Path(self.temp_dir, f"{self.filename}.part{self.chunk_index}")
+
         try:
             self.helper.validate_traversal(
                 Path(self.temp_dir).resolve(), chunk_path.resolve()
             )
         except ValueError as why:
-            logger.exception("Failed to upload files with error: %s", str(why))
+            logger.exception(FAILED_MSG, str(why))
             return self.finish_json(
                 400, {"status": "error", "error": "BAD REQUEST", "error_data": str(why)}
             )
 
-        lock = self.get_lock(self.file_id)  # Capture async lock to avoid race condition
-
-        async with lock:
-            # Save the chunk
+        async with self.get_lock(self.file_id):
             async with await anyio.open_file(chunk_path, "wb") as f:
                 await f.write(self.request.body)
 
-            # Check if all chunks are received
             received_chunks = [
                 f
                 for f in os.listdir(self.temp_dir)
                 if f.startswith(f"{self.filename}.part")
             ]
-            # When we've reached the total chunks we'll
-            # Compare the hash and write the file
+
             if len(received_chunks) == total_chunks:
-                async with await anyio.open_file(file_path, "wb") as outfile:
-                    for i in range(total_chunks):
-                        WebSocketManager().broadcast_user(
-                            auth_data[4]["user_id"],
-                            "upload_process",
-                            {
-                                "cur_file": i,
-                                "total_files": total_chunks,
-                                "type": u_type,
-                                "file_id": self.file_id,
-                            },
-                        )
-                        chunk_file = os.path.join(
-                            self.temp_dir, f"{self.filename}.part{i}"
-                        )
-                        async with await anyio.open_file(chunk_file, "rb") as infile:
-                            await outfile.write(await infile.read())
-                        try:
-                            await anyio.Path(chunk_file).unlink(missing_ok=True)
-                        except OSError as why:
-                            logger.exception(
-                                "Failed to remove chunk file with error: %s", why
-                            )
-                try:
-                    self.file_helper.del_dirs(self.temp_dir)
-                except OSError as why:
-                    logger.exception(
-                        "Failed to import remove temp dir with error: %s", why
-                    )
-                if upload_type == "background":
-                    # Strip EXIF data
-                    image_path = os.path.join(file_path)
-                    logger.debug("Stripping exif data from image")
-                    image = Image.open(image_path)
+                await self._assemble_chunks(file_path, total_chunks, auth_data, u_type)
+                self._cleanup_temp_resources()
 
-                    # Get current raw pixel data from image
-                    image_data = list(image.getdata())
-                    # Create new image
-                    image_no_exif = Image.new(image.mode, image.size)
-                    # Restore pixel data
-                    image_no_exif.putdata(image_data)
-
-                    image_no_exif.save(image_path)
+                if u_type == "admin_config":  # background upload_type
+                    self._strip_exif(file_path)
 
                 logger.info(
-                    f"File upload completed. Filename: {self.filename}"
-                    f" Path: {file_path} Type: {u_type}"
+                    "File upload completed. Filename: %s Path: %s Type: %s",
+                    self.filename,
+                    file_path,
+                    u_type,
                 )
                 self.controller.management.add_to_audit_log(
                     auth_data[4]["user_id"],
@@ -427,18 +331,55 @@ class ApiFilesUploadHandler(BaseApiHandler):
                     server_id,
                     self.get_remote_ip(),
                 )
-                self.finish_json(
+                return self.finish_json(
                     200,
                     {
                         "status": "completed",
                         "data": {"message": "File uploaded successfully"},
                     },
                 )
-            else:
-                self.finish_json(
-                    200,
+
+            return self.finish_json(
+                200,
+                {
+                    "status": "partial",
+                    "data": {"message": f"Chunk {self.chunk_index} received"},
+                },
+            )
+
+    async def _assemble_chunks(self, file_path, total_chunks, auth_data, u_type):
+        """Stitches all file pieces back together sequentially."""
+        async with await anyio.open_file(file_path, "wb") as outfile:
+            for i in range(total_chunks):
+                WebSocketManager().broadcast_user(
+                    auth_data[4]["user_id"],
+                    "upload_process",
                     {
-                        "status": "partial",
-                        "data": {"message": f"Chunk {self.chunk_index} received"},
+                        "cur_file": i,
+                        "total_files": total_chunks,
+                        "type": u_type,
+                        "file_id": self.file_id,
                     },
                 )
+                chunk_file = os.path.join(self.temp_dir, f"{self.filename}.part{i}")
+                async with await anyio.open_file(chunk_file, "rb") as infile:
+                    await outfile.write(await infile.read())
+                try:
+                    await anyio.Path(chunk_file).unlink(missing_ok=True)
+                except OSError as why:
+                    logger.exception("Failed to remove chunk file with error: %s", why)
+
+    def _cleanup_temp_resources(self):
+        try:
+            self.file_helper.del_dirs(self.temp_dir)
+        except OSError as why:
+            logger.exception("Failed to remove temp dir with error: %s", why)
+
+    def _strip_exif(self, image_path):
+        """Removes EXIF metadata from uploaded imagery."""
+        logger.debug("Stripping exif data from image")
+        with Image.open(image_path) as image:
+            image_data = list(image.getdata())
+            image_no_exif = Image.new(image.mode, image.size)
+            image_no_exif.putdata(image_data)
+            image_no_exif.save(image_path)
