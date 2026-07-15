@@ -142,7 +142,9 @@ class ApiFilesUploadHandler(BaseApiHandler):
 
         return await self._process_chunked(u_type, total_chunks, auth_data, server_id)
 
-    def _authorize_upload(self, auth_data, server_id, upload_type):
+    def _authorize_upload(
+        self, auth_data, server_id, upload_type
+    ) -> tuple[str, list[str]]:
         """Determines if user is authorized and returns (u_type, accepted_types)."""
         if server_id:
             if server_id not in [str(x["server_id"]) for x in auth_data[0]]:
