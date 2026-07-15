@@ -55,7 +55,18 @@ class ApiFilesUploadHandler(BaseApiHandler):
         return self.upload_locks[key]
 
     def check_traversal(self, upload_type: str, **kwargs):
-        """Matches upload type and checks default upload location for traversal"""
+        """Matches upload type and checks default upload location for traversal
+
+        Args:
+            upload_type (str): the type of upload we're evaluating
+            file_name (str): upload target file name
+            **kwargs: "server_id" when doing server uploads
+
+        Raises:
+            ValueError: If the file_name contains path traversal sequences
+                (e.g, '../') or attempts to escape the default upload location.
+            ValueError: If file_name or upload_type are null.
+        """
         if not self.filename:
             raise ValueError
 
@@ -143,9 +154,18 @@ class ApiFilesUploadHandler(BaseApiHandler):
         return await self._process_chunked(u_type, total_chunks, auth_data, server_id)
 
     def _authorize_upload(
-        self, auth_data, server_id, upload_type
+        self, auth_data: list, server_id: str, upload_type: str
     ) -> tuple[str, list[str]]:
-        """Determines if user is authorized and returns (u_type, accepted_types)."""
+        """Determines if user is authorized and returns (u_type, accepted_types).
+
+        Args:
+            auth_data (list): auth data returned from base handler auth check
+            server_id (str): target server ID
+            upload_type (str): the upload type designated in header
+
+        Returns:
+            tuple[str, list[str]]: returns upload type and accepted mimetypes
+        """
         if server_id:
             if server_id not in [str(x["server_id"]) for x in auth_data[0]]:
                 return None
@@ -187,7 +207,7 @@ class ApiFilesUploadHandler(BaseApiHandler):
         )
 
     def _parse_and_validate_request(
-        self, server_id, upload_type, accepted_types, u_type
+        self, server_id: str, upload_type: str, accepted_types: list, u_type: str
     ) -> bool:
         """Parses headers and runs path traversal validations.
         Returns False if error response sent."""
