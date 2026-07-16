@@ -103,7 +103,11 @@
         "installing": "Installeren...",
         "columnSettings": "Kolominstellingen",
         "port": "Poort",
-        "serverIcon": "Servericoon"
+        "serverIcon": "Servericoon",
+        "stopAll": "Stop Alles",
+        "stopAllConfirm": "Weet u zeker dat u alle draaiende servers wilt stoppen?",
+        "stopAllServers": "Stop Alle Servers",
+        "stoppingServers": "Een moment astublieft terwijl wij alle servers stoppen."
     },
     "datatables": {
         "loadingRecords": "Laden...",
@@ -548,7 +552,12 @@
         "nextRun": "Volgende Uitvoering",
         "no": "Nee",
         "scheduledTasks": "Geplande Taken",
-        "yes": "Ja"
+        "yes": "Ja",
+        "runNow": "Nu Starten",
+        "runNowTitle": "Nu Taak Starten?",
+        "confirmRunNow": "Dit voert onmiddelijk de actie van deze taak uit. Weet u dit zeker?",
+        "cascadeChildren": "Voer ook geketende (reactie)taken uit",
+        "taskQueued": "Taak is in wachtrij gezet om uitgevoerd te worden."
     },
     "serverStats": {
         "cpuUsage": "Gebruik van CPU",
