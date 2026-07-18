@@ -11,7 +11,7 @@ ARCHIVE_MIME_TYPES = [
 
 
 class APIServerImportUpload(ApiFilesUploadHandler):
-    async def post(self, server_id=None):
+    async def post(self):
         auth_data = self.authenticate_user()
         if not auth_data:
             return
@@ -25,6 +25,11 @@ class APIServerImportUpload(ApiFilesUploadHandler):
         # 2. Extract and validate headers/paths
         if not self._parse_and_validate_request(accepted_types):
             return
+
+        try:
+            self._check_traversal()
+        except ValueError:
+            return self._finish_unauthorized(auth_data)
 
         # 3. Check disk space
         file_size = int(self.request.headers.get("fileSize", 0))
@@ -51,9 +56,7 @@ class APIServerImportUpload(ApiFilesUploadHandler):
         if not self.chunked:
             return await self._process_non_chunked(self.upload_dir)
 
-        return await self._process_chunked(
-            self.upload_dir, total_chunks, auth_data, server_id
-        )
+        return await self._process_chunked(self.upload_dir, total_chunks, auth_data)
 
     def _authorize_upload(self, auth_data: tuple) -> list[str]:
         can_create = self.controller.crafty_perms.can_create_server(
@@ -63,20 +66,11 @@ class APIServerImportUpload(ApiFilesUploadHandler):
             return ARCHIVE_MIME_TYPES
         raise PermissionError()
 
-    def _check_traversal(self, server_id: str):
-        server_path = Path(
-            self.controller.management.get_master_server_dir(),
-            server_id,
-        )
+    def _check_traversal(self):
         self.upload_dir = Path(
-            self.file_helper.get_absolute_path(
-                str(server_path), str(Path(server_path, self.location))
-            )
-        ).resolve()
-        base_dir = Path(
-            self.controller.management.get_master_server_dir(),
-            server_id,
+            self.controller.project_root, "import", "upload"
         ).resolve()
         self.helper.validate_traversal(
-            base_dir, Path(self.upload_dir, self.filename).resolve()
+            self.upload_dir,
+            Path(self.upload_dir, self.filename).resolve(),
         )

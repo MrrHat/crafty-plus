@@ -20,6 +20,10 @@ class ApiServerFilesUpload(ApiFilesUploadHandler):
         # 2. Extract and validate headers/paths
         if not self._parse_and_validate_request(accepted_types):
             return
+        try:
+            self._check_traversal(server_id)
+        except ValueError:
+            return self._finish_unauthorized(auth_data)
 
         # 3. Check disk space
         file_size = int(self.request.headers.get("fileSize", 0))

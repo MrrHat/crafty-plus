@@ -4,7 +4,7 @@ import shutil
 import asyncio
 from pathlib import Path
 import anyio
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from app.classes.web.base_api_handler import BaseApiHandler
 from app.classes.web.websocket_handler import WebSocketManager
 
@@ -43,7 +43,9 @@ class ApiFilesUploadHandler(BaseApiHandler):
         self.filename = self.request.headers.get("fileName", None)
         self.location = self.request.headers.get("location", None)
         self.chunk_index = self.request.headers.get("chunkId")
-        self.temp_dir = Path(self.controller.project_root, "temp", self.file_id)
+        self.temp_dir = Path(
+            self.controller.project_root, "temp", self.file_id
+        ).resolve()
 
         try:
             self.helper.validate_traversal(
@@ -94,7 +96,7 @@ class ApiFilesUploadHandler(BaseApiHandler):
         )
 
     async def _process_chunked(
-        self, upload_dir: Path, total_chunks: int, auth_data, server_id
+        self, upload_dir: Path, total_chunks: int, auth_data, server_id=None
     ):
         """Processes incoming file chunks, validates integrity, and merges them."""
         os.makedirs(self.temp_dir, exist_ok=True)
@@ -161,7 +163,12 @@ class ApiFilesUploadHandler(BaseApiHandler):
                 await self._assemble_chunks(file_path, total_chunks, auth_data)
                 self._cleanup_temp_resources()
 
-                self._strip_exif(file_path)
+                try:
+                    self._strip_exif(file_path)
+                except UnidentifiedImageError as why:
+                    logger.exception(
+                        "Tried to sanitize path that's not an image: %s", why
+                    )
 
                 logger.info(
                     "File upload completed. Filename: %s Path: %s",

@@ -30,8 +30,8 @@ IMAGE_MIME_TYPES = [
 CUSTOM_GRAPHICS = "app/frontend/static/assets/images/auth/custom"
 
 
-class APIServerImportUpload(ApiFilesUploadHandler):
-    async def post(self, server_id=None):
+class APICraftyCustomizeUpload(ApiFilesUploadHandler):
+    async def post(self):
         auth_data = self.authenticate_user()
         if not auth_data:
             return
@@ -45,7 +45,10 @@ class APIServerImportUpload(ApiFilesUploadHandler):
         # 2. Extract and validate headers/paths
         if not self._parse_and_validate_request(accepted_types):
             return
-
+        try:
+            self._check_traversal()
+        except ValueError:
+            return self._finish_unauthorized(auth_data)
         # 3. Check disk space
         file_size = int(self.request.headers.get("fileSize", 0))
         total_chunks = int(self.request.headers.get("totalChunks", 0))
@@ -71,9 +74,7 @@ class APIServerImportUpload(ApiFilesUploadHandler):
         if not self.chunked:
             return await self._process_non_chunked(self.upload_dir)
 
-        return await self._process_chunked(
-            self.upload_dir, total_chunks, auth_data, server_id
-        )
+        return await self._process_chunked(self.upload_dir, total_chunks, auth_data)
 
     def _authorize_upload(self, auth_data: tuple) -> list[str]:
         if auth_data[4]["superuser"]:
