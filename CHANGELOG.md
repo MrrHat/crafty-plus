@@ -2,6 +2,7 @@
 ## --- [4.10.8] - 2026/TBD
 ### Refactor
 - Remove Unused Exceptions ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1055))
+- Refactor the Player Management Tab ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1054))
 ### New features
 - Add Run Now button to scheduled tasks ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1058))
 ### Bug fixes
@@ -14,6 +15,7 @@
 - [`CVE-2026-13716`] Security: Harden `ApiFilesUploadHandler` ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1062))
 - Fix uncaught exception in update manager during server version check ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1069))
 - Fix update failures caused by backup `was_running` value was null ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1064))
+- Fix Hytale player tab 'unban' ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1054))
 ### Tweaks
 - Add max 1gb for session.log file for noisy installs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1063))
 - Read Hytale bans.json for the banned player list ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1053))
