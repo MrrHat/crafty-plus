@@ -15,7 +15,6 @@ async function uploadChunk(file, url, chunk, start, end, chunk_hash, totalChunks
             'fileSize': file.size,
             'chunkHash': chunk_hash,
             'chunked': true,
-            'type': type,
             'totalChunks': totalChunks,
             'fileName': file.name,
             'location': path,
