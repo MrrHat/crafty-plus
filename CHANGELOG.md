@@ -1,5 +1,5 @@
 # Changelog
-## --- [4.10.8] - 2026/TBD
+## --- [4.10.8] - 2026/07/26
 ### Refactor
 - Remove Unused Exceptions ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1055))
 - Refactor the Player Management Tab ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1054))
