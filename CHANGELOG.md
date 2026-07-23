@@ -11,7 +11,7 @@
 - Fix cache refresh button on the creation and update pages ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1059))
 - Fix support logs failing to download due to a typing error ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1061))
 - Fix reaction schedules being removed on edit ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1065))
-- [`CVE-2026-13716`] Security: Harden `ApiFilesUploadHandler` ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1062))
+- [`CVE-2026-13716`] Security: Harden Upload Handler ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1062) | [Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1073))
 - Fix uncaught exception in update manager during server version check ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1069))
 - Fix update failures caused by backup `was_running` value was null ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1064))
 ### Tweaks
