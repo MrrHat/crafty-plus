@@ -67,23 +67,62 @@
     return r ? r[1] : undefined;
   }
 
-  function htmlDecode(input) {
-    var e = document.createElement('textarea');
-    e.innerHTML = input;
-    // handle case of empty input
-    return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+  function ban_kick(action, player) {
+    send_command_to_server(`${action} ${player}`);
+    // Optimistically reflect a ban in the banned list for instant feedback;
+    // the next page load reconciles against the server's banned-players.json.
+    if (action === 'ban') {
+      add_banned_row(player, '');
+    }
   }
 
-  $(document).ready(function () {
-    console.log("ready!");
+  // Unban a player and optimistically drop them from the banned list so the UI
+  // updates immediately instead of waiting for a page refresh. Hytale and
+  // Minecraft spell the command differently (unban vs pardon).
+  function unban_player(player) {
+    const command = SERVER_TYPE === "hytale" ? "unban" : "pardon";
+    send_command_to_server(`${command} ${player}`);
+    remove_banned_rows(player);
+  }
 
-    var bannedPlayers = `{{ data['banned_players_html'] }}`;
+  // Remove every banned-table row (desktop + mobile) matching a player name.
+  function remove_banned_rows(player) {
+    $('#banned-body tr, #banned-body-mobile tr').filter(function () {
+      return $(this).attr('data-player') === player;
+    }).remove();
+  }
 
-    var bannedPlayersDecoded = htmlDecode(bannedPlayers);
+  // Append an optimistic banned-table row for a player. Markup mirrors the
+  // server-rendered rows in server_players.html; text is set via .text()/text
+  // nodes so player names and reasons can't break out of the markup.
+  function add_banned_row(player, reason) {
+    remove_banned_rows(player);
+    const reasonText = reason || 'None';
+    const bannedOn = moment().format('YYYY/MM/DD HH:mm:ss');
+    const unbanButton = () => $('<button>', {
+      type: 'button', class: 'btn btn-danger', text: 'Unban'
+    }).on('click', () => unban_player(player));
 
-    $("#bannedPlayers").text(bannedPlayersDecoded).html()
+    $('#banned-body').append(
+      $('<tr>', { class: 'playerItem--', 'data-player': player }).append(
+        $('<td>').append($('<strong>').text(' ' + player)),
+        $('<td>').text('Banned on ' + bannedOn),
+        $('<td>').append(
+          document.createTextNode('Banned by :  '),
+          $('<br>'),
+          document.createTextNode('Reason : ' + reasonText)
+        ),
+        $('<td>', { class: 'buttons' }).append(unbanButton())
+      )
+    );
 
-  });
+    $('#banned-body-mobile').append(
+      $('<tr>', { class: 'playerItem--', 'data-player': player }).append(
+        $('<td>').append($('<strong>').text(' ' + player)),
+        $('<td>', { class: 'buttons' }).append(unbanButton())
+      )
+    );
+  }
 
   async function send_command_to_server(command) {
     console.log(command)
