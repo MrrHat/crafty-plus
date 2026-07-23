@@ -57,7 +57,6 @@ from app.classes.web.routes.api.servers.server.files import (
     ApiServersServerFileDownload,
     ApiServersServerFilesOperationHandler,
 )
-from app.classes.web.routes.api.crafty.upload.index import ApiFilesUploadHandler
 from app.classes.web.routes.api.servers.server.tasks.task.children import (
     ApiServersServerTasksTaskChildrenHandler,
 )
@@ -74,6 +73,7 @@ from app.classes.web.routes.api.servers.server.webhooks.webhook.index import (
     ApiServersServerWebhooksManagementIndexHandler,
 )
 from app.classes.web.routes.api.servers.server.users import ApiServersServerUsersHandler
+from app.classes.web.routes.api.servers.server.upload import ApiServerFilesUpload
 from app.classes.web.routes.api.users.index import ApiUsersIndexHandler
 from app.classes.web.routes.api.users.user.index import ApiUsersUserIndexHandler
 from app.classes.web.routes.api.users.user.permissions import (
@@ -108,6 +108,8 @@ from app.classes.web.routes.api.crafty.stats.stats import ApiCraftyHostStatsHand
 from app.classes.web.routes.api.crafty.clogs.index import ApiCraftyLogIndexHandler
 from app.classes.web.routes.api.crafty.clogs.support import ApiCraftySupportIndexHandler
 from app.classes.web.routes.api.crafty.imports.index import ApiImportFilesIndexHandler
+from app.classes.web.routes.api.crafty.imports.upload import APIServerImportUpload
+from app.classes.web.routes.api.crafty.config.upload import APICraftyCustomizeUpload
 from app.classes.web.routes.api.crafty.exe_cache import (
     ApiCraftyJarCacheIndexHandler,
     ApiCraftySteamCacheIndexHandler,
@@ -385,7 +387,7 @@ def api_handlers(handler_args):
         ),
         (
             r"/api/v2/crafty/admin/upload/?",
-            ApiFilesUploadHandler,
+            APICraftyCustomizeUpload,
             handler_args,
         ),
         (
@@ -395,12 +397,12 @@ def api_handlers(handler_args):
         ),
         (
             r"/api/v2/servers/import/upload/?",
-            ApiFilesUploadHandler,
+            APIServerImportUpload,
             handler_args,
         ),
         (
             r"/api/v2/servers/([a-z0-9-]+)/files/upload/?",
-            ApiFilesUploadHandler,
+            ApiServerFilesUpload,
             handler_args,
         ),
         (
