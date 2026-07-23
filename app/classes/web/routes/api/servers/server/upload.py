@@ -12,19 +12,19 @@ class ApiServerFilesUpload(ApiFilesUploadHandler):
             return
 
         # 1. Authorize user and resolve types
-        auth_result = self._authorize_upload(auth_data, server_id)
-        if not auth_result:
+        try:
+            auth_result = self._authorize_upload(auth_data, server_id)
+        except PermissionError:
             return self._finish_unauthorized(auth_data)
         accepted_types = auth_result
 
         # 2. Extract and validate headers/paths
         if not self._parse_and_validate_request(accepted_types):
-            return
+            return self._finish_unauthorized(auth_data)
         try:
             self._check_traversal(server_id)
         except ValueError:
             return self._finish_unauthorized(auth_data)
-
         # 3. Check disk space
         file_size = int(self.request.headers.get("fileSize", 0))
         total_chunks = int(self.request.headers.get("totalChunks", 0))
