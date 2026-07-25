@@ -19,6 +19,7 @@
 ### Tweaks
 - Add max 1gb for session.log file for noisy installs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1063))
 - Read Hytale bans.json for the banned player list ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1053))
+- Reduce number of allowed image types ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1077))
 <br><br>
 
 ## --- [4.10.7] - 2026/06/16
