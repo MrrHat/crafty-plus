@@ -1,4 +1,13 @@
 # Changelog
+## --- [4.11.0] - 2026/TBD
+### New features
+TBD
+### Bug fixes
+TBD
+### Tweaks
+TBD
+<br><br>
+
 ## --- [4.10.8] - 2026/07/26
 ### Refactor
 - Remove Unused Exceptions ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1055))
