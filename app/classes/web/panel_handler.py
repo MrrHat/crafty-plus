@@ -883,26 +883,6 @@ class PanelHandler(BaseHandler):
                     WebhookFactory.get_monitored_events().keys()
                 )
 
-            def get_banned_players_html():
-                banned_players = self.controller.servers.get_banned_players(server_id)
-                if banned_players is None:
-                    return """
-                    <li class="playerItem banned">
-                        <h3>Error while reading banned-players.json</h3>
-                    </li>
-                    """
-                html = ""
-                for player in banned_players:
-                    html += f"""
-                    <li class="playerItem banned">
-                        <h3>{player['name']}</h3>
-                        <span>Banned by {player.get('source', '')} for reason: {player.get('reason', 'None')}</span>
-                        <button onclick="send_command_to_server('pardon {player['name']}')" type="button" class="btn btn-danger">Unban</button>
-                    </li>
-                    """
-
-                return html
-
             if subpage == "admin_controls":
                 if (
                     not page_data["permissions"]["Players"]
@@ -910,7 +890,6 @@ class PanelHandler(BaseHandler):
                 ):
                     if not superuser:
                         self.redirect("/panel/error?error=Unauthorized access")
-                page_data["banned_players_html"] = get_banned_players_html()
                 page_data["banned_players"] = (
                     self.controller.servers.get_banned_players(server_id)
                 )

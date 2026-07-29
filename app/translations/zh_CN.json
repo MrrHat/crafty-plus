@@ -117,7 +117,11 @@
         "welcome": "欢迎来到 Crafty Controller",
         "columnSettings": "列设置",
         "port": "端口",
-        "serverIcon": "服务器图标"
+        "serverIcon": "服务器图标",
+        "stopAll": "全部停止",
+        "stopAllConfirm": "您确定要停止所有正在运行的服务器吗？",
+        "stopAllServers": "停止所有服务器",
+        "stoppingServers": "请耐心等待，我们正在停止所有服务器。"
     },
     "datatables": {
         "i18n": {
@@ -571,7 +575,12 @@
         "no-schedule": "此服务器当前没有计划。要开始使用计划，点击",
         "scheduledTasks": "计划任务",
         "yes": "是",
-        "backupPol": "备份策略"
+        "backupPol": "备份策略",
+        "runNow": "现在运行",
+        "runNowTitle": "现在运行任务？",
+        "confirmRunNow": "将会立即执行此任务的操作。您确定吗？",
+        "cascadeChildren": "也运行连锁（反应）任务",
+        "taskQueued": "任务已排队等待执行。"
     },
     "serverStats": {
         "cpuUsage": "CPU 使用率",

@@ -61,7 +61,7 @@ class UpdateManager:
             bedrock_url = self.helper.get_latest_bedrock_url()
             if bedrock_url:
                 # Use the new method for secure download
-                self.import_helper.download_threaded_bedrock_server(
+                self.import_helper._download_bedrock_server(
                     server_path, server_id, bedrock_url, True
                 )
                 downloaded = True
@@ -102,7 +102,7 @@ class UpdateManager:
                     "Server version check failed. Invalid url: %s",
                     settings.get("executable_update_url"),
                 )
-        except TimeoutError as why:
+        except (TimeoutError, requests.exceptions.RequestException) as why:
             self.update_available = False
             return logger.exception(
                 "Could not capture remote URL hash with error %s", why

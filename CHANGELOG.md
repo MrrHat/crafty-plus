@@ -1,4 +1,27 @@
 # Changelog
+## --- [4.10.8] - 2026/07/26
+### Refactor
+- Remove Unused Exceptions ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1055))
+- Refactor the Player Management Tab ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1054))
+### New features
+- Add Run Now button to scheduled tasks ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1058))
+### Bug fixes
+- Fix Bedrock Update Failures ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1049))
+- Fix directory downloads in the file manager ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1050))
+- Fix backup exclusions on unix based OSes ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1051))
+- Fix cache refresh button on the creation and update pages ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1059))
+- Fix support logs failing to download due to a typing error ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1061))
+- Fix reaction schedules being removed on edit ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1065))
+- [`CVE-2026-13716`] Security: Harden Upload Handler ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1062) | [Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1073))
+- Fix uncaught exception in update manager during server version check ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1069))
+- Fix update failures caused by backup `was_running` value was null ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1064))
+- Fix Hytale player tab 'unban' ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1054))
+### Tweaks
+- Add max 1gb for session.log file for noisy installs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1063))
+- Read Hytale bans.json for the banned player list ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1053))
+- Reduce number of allowed image types ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1077))
+<br><br>
+
 ## --- [4.10.7] - 2026/06/16
 ### Bug fixes
 - Fix python `3.13+` specific notation to add support back for `3.10-12` ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1043))

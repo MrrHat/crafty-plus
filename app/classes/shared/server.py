@@ -1221,16 +1221,6 @@ class ServerInstance:
             # Pause to let command run
             time.sleep(5)
 
-        self.was_running = False
-        if backup_config["shutdown"]:
-            logger.info(
-                "Found shutdown preference. Delaying"
-                + "backup start. Shutting down server."
-            )
-            if self.check_running():
-                self.stop_server()
-                self.was_running = True
-
         backup_thread = threading.Thread(
             target=self.backup_server,
             daemon=True,
@@ -1257,19 +1247,17 @@ class ServerInstance:
     @callback
     def backup_server(self, backup_id) -> dict:
         logger.info(f"Starting server {self.name} (ID {self.server_id}) backup")
-        server_users = PermissionsServers.get_server_user_list(self.server_id)
-        # Alert the start of the backup to the authorized users.
-        for user in server_users:
-            WebSocketManager().broadcast_user(
-                user,
-                "notification",
-                self.helper.translation.translate(
-                    "notify", "backupStarted", HelperUsers.get_user_lang_by_id(user)
-                ).format(self.name),
-            )
-        time.sleep(3)
 
         conf = HelpersManagement.get_backup_config(backup_id)
+        self.was_running = False
+        if conf["shutdown"]:
+            logger.info(
+                "Found shutdown preference. Delaying"
+                + "backup start. Shutting down server."
+            )
+            if self.check_running():
+                self.stop_server()
+                self.was_running = True
         # Adjust the location to include the backup ID for destination.
         backup_location = os.path.join(conf["backup_location"], conf["backup_id"])
 
