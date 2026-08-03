@@ -133,14 +133,17 @@
                       <tbody>
                         {% for preset in item[1] %}
                         <tr class="preset-row">
-                          <td><input type="number" class="form-control preset-hours" value="{{ preset['hours'] }}" min="1" step="1"></td>
+                          <td><input type="number" class="form-control preset-hours" value="{{ preset['hours'] }}"
+                              min="1" step="1"></td>
                           <td><input type="text" class="form-control preset-label" value="{{ preset['label'] }}"></td>
-                          <td><button type="button" class="btn btn-sm btn-danger remove-preset"><i class="ph-bold ph-trash"></i></button></td>
+                          <td><button type="button" class="btn btn-sm btn-danger remove-preset"><i
+                                class="ph-bold ph-trash"></i></button></td>
                         </tr>
                         {% end %}
                       </tbody>
                     </table>
-                    <button type="button" class="btn btn-sm btn-success" id="add-preset"><i class="ph-bold ph-plus"></i> Add Preset</button>
+                    <button type="button" class="btn btn-sm btn-success" id="add-preset"><i class="ph-bold ph-plus"></i>
+                      Add Preset</button>
                   </div>
                   {% elif item[0] == 'sampling_tiers' %}
                   <div id="sampling-tiers-editor">
@@ -155,14 +158,18 @@
                       <tbody>
                         {% for tier in item[1] %}
                         <tr class="sampling-tier-row">
-                          <td><input type="number" class="form-control tier-max-hours" value="{{ tier['max_hours'] }}" min="1" step="1"></td>
-                          <td><input type="number" class="form-control tier-sample-rate" value="{{ tier['sample_rate'] }}" min="1" step="1"></td>
-                          <td><button type="button" class="btn btn-sm btn-danger remove-tier"><i class="ph-bold ph-trash"></i></button></td>
+                          <td><input type="number" class="form-control tier-max-hours" value="{{ tier['max_hours'] }}"
+                              min="1" step="1"></td>
+                          <td><input type="number" class="form-control tier-sample-rate"
+                              value="{{ tier['sample_rate'] }}" min="1" step="1"></td>
+                          <td><button type="button" class="btn btn-sm btn-danger remove-tier"><i
+                                class="ph-bold ph-trash"></i></button></td>
                         </tr>
                         {% end %}
                       </tbody>
                     </table>
-                    <button type="button" class="btn btn-sm btn-success" id="add-tier"><i class="ph-bold ph-plus"></i> Add Tier</button>
+                    <button type="button" class="btn btn-sm btn-success" id="add-tier"><i class="ph-bold ph-plus"></i>
+                      Add Tier</button>
                   </div>
                   {% elif isinstance(item[1], list) %}
                   <textarea id="{{item[0]}}" value="{{','.join(item[1])}}" type="text" name="{{item[0]}}"
@@ -226,7 +233,7 @@
 {% block js %}
 <script>
   function replacer(key, value) {
-    if (key == "disabled_language_files" || key == "monitored_mounts" || key == "keywords" || key == "silent_notif_fields") {
+    if (key == "disabled_language_files" || key == "monitored_mounts" || key == "keywords" || key == "silent_notif_fields" || key == "trusted_proxies") {
       if (value == 0) {
         return []
       } else {
@@ -261,33 +268,34 @@
     formDataObject.disabled_language_files = $('#lang_select').val();
     formDataObject.monitored_mounts = $('#mount_select').val();
     formDataObject.keywords = $('#keywords').val().split(",");
+    formDataObject.trusted_proxies = $('#trusted_proxies').val().split(",");
     formDataObject.silent_notif_fields = $('#silent_notif_fields').val().split(",");
 
     // Collect time range presets
     const presets = [];
-    $('.preset-row').each(function() {
+    $('.preset-row').each(function () {
       const hours = parseInt($(this).find('.preset-hours').val(), 10);
       const label = $(this).find('.preset-label').val().trim();
       if (hours > 0 && label) {
-        presets.push({hours: hours, label: label});
+        presets.push({ hours: hours, label: label });
       }
     });
     if (presets.length > 0) {
-      presets.sort(function(a, b) { return a.hours - b.hours; });
+      presets.sort(function (a, b) { return a.hours - b.hours; });
       formDataObject.time_range_presets = presets;
     }
 
     // Collect sampling tiers
     const tiers = [];
-    $('.sampling-tier-row').each(function() {
+    $('.sampling-tier-row').each(function () {
       const maxHours = parseInt($(this).find('.tier-max-hours').val(), 10);
       const sampleRate = parseInt($(this).find('.tier-sample-rate').val(), 10);
       if (maxHours > 0 && sampleRate > 0) {
-        tiers.push({max_hours: maxHours, sample_rate: sampleRate});
+        tiers.push({ max_hours: maxHours, sample_rate: sampleRate });
       }
     });
     if (tiers.length > 0) {
-      tiers.sort(function(a, b) { return a.max_hours - b.max_hours; });
+      tiers.sort(function (a, b) { return a.max_hours - b.max_hours; });
       formDataObject.sampling_tiers = tiers;
     }
 
@@ -374,7 +382,7 @@
   });
 
   // Time range presets editor
-  $('#add-preset').on('click', function() {
+  $('#add-preset').on('click', function () {
     const row = '<tr class="preset-row">' +
       '<td><input type="number" class="form-control preset-hours" value="1" min="1" step="1"></td>' +
       '<td><input type="text" class="form-control preset-label" value=""></td>' +
@@ -383,14 +391,14 @@
     $('#presets-table tbody').append(row);
   });
 
-  $(document).on('click', '.remove-preset', function() {
+  $(document).on('click', '.remove-preset', function () {
     if ($('.preset-row').length > 1) {
       $(this).closest('tr').remove();
     }
   });
 
   // Sampling tiers editor
-  $('#add-tier').on('click', function() {
+  $('#add-tier').on('click', function () {
     const row = '<tr class="sampling-tier-row">' +
       '<td><input type="number" class="form-control tier-max-hours" value="1" min="1" step="1"></td>' +
       '<td><input type="number" class="form-control tier-sample-rate" value="1" min="1" step="1"></td>' +
@@ -399,7 +407,7 @@
     $('#sampling-tiers-table tbody').append(row);
   });
 
-  $(document).on('click', '.remove-tier', function() {
+  $(document).on('click', '.remove-tier', function () {
     if ($('.sampling-tier-row').length > 1) {
       $(this).closest('tr').remove();
     }

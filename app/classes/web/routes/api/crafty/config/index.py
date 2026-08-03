@@ -192,6 +192,12 @@ config_json_schema = {
             "error": "typeInteger",
             "fill": True,
         },
+        "trusted_proxies": {
+            "type": "array",
+            "items": {"type": "string"},
+            "error": "typeList",
+            "fill": True,
+        },
     },
     "additionalProperties": False,
     "minProperties": 1,

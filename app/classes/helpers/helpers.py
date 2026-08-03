@@ -93,6 +93,7 @@ MASTER_CONFIG = {
         {"max_hours": 72, "sample_rate": 6},
     ],
     "sampling_fallback_divisor": 12,
+    "trusted_proxies": [],
 }
 
 CONFIG_CATEGORIES = {
@@ -116,6 +117,7 @@ CONFIG_CATEGORIES = {
         "max_login_attempts",
         "enable_passkey_auth",
         "passkey_rp_name",
+        "trusted_proxies",
     ],
     "logs": [
         "max_log_lines",
