@@ -1,7 +1,7 @@
 # Changelog
 ## --- [4.11.0] - 2026/TBD
 ### New features
-TBD
+- Add OpenGraph social media previews/embeds link customization ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1029))
 ### Bug fixes
 TBD
 ### Tweaks
