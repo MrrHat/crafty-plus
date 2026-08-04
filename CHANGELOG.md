@@ -5,7 +5,7 @@
 - Custom Branding and "Customize Crafty" page redesign ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1037))
 - Resolve glob patterns in logfile paths for Hytale logs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1039))
 ### Bug fixes
-TBD
+- Fix all-numeric usernames rejected as invalid JSON schema ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/994))
 ### Tweaks
 TBD
 <br><br>
