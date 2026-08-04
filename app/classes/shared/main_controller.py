@@ -253,8 +253,12 @@ class Controller:
                 final_path += "_" + server["server_id"]
                 os.mkdir(final_path)
             try:
+                # log_path may be a glob (e.g. Hytale's per-boot files); resolve to
+                # the newest matching file before copying it into the archive.
                 FileHelpers.copy_file(
-                    pathlib.Path(server["path"], server["log_path"]),
+                    Helpers.resolve_log_path(
+                        pathlib.Path(server["path"], server["log_path"])
+                    ),
                     final_path,
                 )
             except Exception as e:
@@ -585,9 +589,16 @@ class Controller:
             # TODO: different default stop commands for server creation types
             stop_command = "stop"
 
+        # Default log location per creation type. Minecraft Java reuses a fixed
+        # latest.log; Hytale writes a new timestamped file each boot, so it uses a
+        # glob that resolve_log_path() expands to the newest file at read time.
+        default_log_locations = {
+            "minecraft_java": "./logs/latest.log",
+            "hytale": "./logs/*_server.log",
+        }
         log_location = data.get("log_location", "")
-        if log_location == "" and data["create_type"] == "minecraft_java":
-            log_location = "./logs/latest.log"
+        if log_location == "":
+            log_location = default_log_locations.get(data["create_type"], "")
 
         new_server_id = self.register_server(
             name=data["name"],

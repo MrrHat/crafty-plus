@@ -647,19 +647,22 @@ class ServersController(metaclass=Singleton):
     def check_for_old_logs(self):
         servers = HelperServers.get_all_defined_servers()
         for server in servers:
-            logs_path, latest_log_file = os.path.split(server["log_path"])
+            logs_path = os.path.split(server["log_path"])[0]
             logs_delete_after = int(server["logs_delete_after"])
             if logs_delete_after == 0:
                 continue
 
+            # log_path may be a glob (e.g. Hytale's per-boot files), so resolve the
+            # active file and exclude it by name to avoid rotating away the live log.
+            active_log = Helpers.resolve_log_path(
+                pathlib.Path(server["path"], server["log_path"])
+            )
+            latest_log_file = os.path.basename(active_log)
+
             log_files = list(
                 filter(
                     lambda val: val != latest_log_file,
-                    os.listdir(
-                        pathlib.Path(
-                            server["path"], os.path.split(server["log_path"])[0]
-                        )
-                    ),
+                    os.listdir(pathlib.Path(server["path"], logs_path)),
                 )
             )
             for log_file in log_files:
