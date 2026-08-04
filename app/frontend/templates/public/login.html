@@ -53,7 +53,7 @@
             <div id="login-form-background" class="auto-form-wrapper login-modal">
               <div id="login_opacity" data-value="{{ data['login_opacity'] }}" hidden></div>
               <div class="text-center auto-form-logo">
-                <img src="/static/assets/images/logo_long.svg">
+                <img src="{{ data['brand']['full'] }}">
               </div>
               <form id="login-form">
                 {% raw xsrf_form_html() %}

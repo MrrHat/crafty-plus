@@ -1,6 +1,14 @@
 let activeUploads = 0;
 let last_tree_view = "";
 const uploadProgressMap = new Map();
+// Superuser-only panel image uploads. Each type has its own endpoint so the
+// destination folder is decided by the route, never by a request header.
+const ADMIN_UPLOAD_URLS = {
+    background: '/api/v2/crafty/admin/upload/',
+    embed: '/api/v2/crafty/admin/upload/embed/',
+    logo_full: '/api/v2/crafty/admin/upload/logo_full/',
+    logo_square: '/api/v2/crafty/admin/upload/logo_square/',
+};
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -62,12 +70,10 @@ async function uploadFile(type, file = null, path = null, file_num = 0, fileId =
     let url = '';
     if (type === "server_upload") {
         url = `/api/v2/servers/${serverId}/files/upload/`;
-    } else if (type === "background") {
-        url = `/api/v2/crafty/admin/upload/`;
-    } else if (type === "embed") {
-        url = `/api/v2/crafty/admin/upload/embed/`;
     } else if (type === "import") {
         url = `/api/v2/servers/import/upload/`;
+    } else {
+        url = ADMIN_UPLOAD_URLS[type] || '';
     }
     console.log(url);
 
@@ -143,17 +149,18 @@ async function uploadFile(type, file = null, path = null, file_num = 0, fileId =
     }
 
     if (errors.length > 0) {
-
         const errorMessage = errors.map(error => {
+            // Errors thrown here may carry a JSON-stringified response body or a
+            // plain string (e.g. a network/parse failure). Don't assume JSON.
             let rawString = typeof error === 'string' ? error : (error.message || '');
-
             if (rawString.startsWith("Error: ")) {
                 rawString = rawString.replace("Error: ", "").trim();
             }
-
-            const parsed = JSON.parse(rawString);
-
-            return parsed.error_data || 'Unknown error occurred';
+            try {
+                return JSON.parse(rawString).data.message || 'Unknown error occurred';
+            } catch {
+                return rawString || 'Unknown error occurred';
+            }
         }).join('<br>');
         console.log(errorMessage);
         bootbox.alert({
@@ -170,10 +177,6 @@ async function uploadFile(type, file = null, path = null, file_num = 0, fileId =
             document.getElementById("lower_half").classList.remove("d-none");
             document.getElementById("lower_half").hidden = false;
             $("#root_upload_button").click();
-        } else if (type === "background") {
-            setTimeout(function () {
-                location.href = `/panel/custom_login`;
-            }, 2000);
         }
     } else {
 

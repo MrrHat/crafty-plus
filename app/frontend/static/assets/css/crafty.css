@@ -562,3 +562,129 @@ div.form-group.reset-secret {
 }
 
 /**************************************************************/
+/* Custom site logos: scale any uploaded image to fit its     */
+/* container while preserving aspect ratio. Stock SVG logos    */
+/* fit intrinsically; uploaded raster logos need these caps so */
+/* a square/large image doesn't render at full natural size.   */
+/**************************************************************/
+
+/* Wide "full" logo in the sidebar/navbar brand area.
+   A fixed box + object-fit: contain sizes dimensionless stock SVGs
+   (viewBox only, no width/height) AND letterboxes raster uploads of
+   any aspect ratio without distortion or oversize. */
+.navbar.default-layout .navbar-brand-wrapper .brand-logo img {
+    width: 170px;
+    height: 50px;
+    object-fit: contain;
+}
+
+/* "Full" logo on the login screen / login preview. Responsive width,
+   fixed-height box + object-fit: contain so dimensionless stock SVGs
+   render and raster uploads of any aspect ratio fit without distortion. */
+.auto-form-logo img {
+    width: 100%;
+    height: 130px;
+    object-fit: contain;
+}
+
+/* Customize-tab image controls: a fixed-width thumbnail column so the
+   Upload / Choose existing / Apply controls of the background, full-logo
+   and square-logo sections all line up at the same left edge, regardless
+   of each thumbnail's own dimensions. */
+.brand-thumb {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 160px;
+    flex: 0 0 160px;
+    width: 160px;
+    margin-right: 1rem;
+    text-align: center;
+}
+
+.brand-thumb img {
+    max-width: 100%;
+    object-fit: contain;
+    border: 1px solid var(--card-banner-bg, #444);
+    border-radius: 4px;
+}
+
+#bg_thumb {
+    width: 160px;
+    height: 90px;
+    object-fit: cover;
+}
+
+/* Image thumbnails double as drag-and-drop targets. The copy cursor hints
+   that a file can be dropped; .drag-over highlights the active target. */
+#bg_thumb,
+#embed_thumb,
+.brand-thumb img {
+    cursor: copy;
+}
+
+.drag-over {
+    outline: 2px dashed var(--info, #17a2b8);
+    outline-offset: 2px;
+    opacity: 0.85;
+}
+
+/* Section divider under a heading. The base stylesheet's hr is black at 10%
+   opacity, which is invisible on the dark panel background; use the theme's
+   outline colour so it shows on every theme. */
+.section-divider {
+    border-top-color: var(--outline);
+}
+
+/* Compact single-line control row for the reusable image picker element:
+   [ select ........... ] [ delete ] [ upload ] */
+.image-picker-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.image-picker-row .select-css {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.image-picker-row .btn-icon {
+    flex: 0 0 auto;
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.75rem;
+    line-height: 1;
+}
+
+.image-picker-row .btn-icon i {
+    display: block;
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+#logo_full_thumb {
+    width: 160px;
+    height: 64px;
+}
+
+#logo_square_thumb {
+    width: 96px;
+    height: 96px;
+}
+
+/* Customize-tab two-column split. Stacks (full width) by default so the
+   login preview sits below the fields; goes side-by-side only past 1590px,
+   where the content area (minus the ~270px sidebar) is wide enough for two
+   comfortable columns. Custom breakpoint — not a Bootstrap stop. */
+@media (min-width: 1590px) {
+    .customize-col {
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+/**************************************************************/

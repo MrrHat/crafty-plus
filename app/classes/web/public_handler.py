@@ -21,6 +21,7 @@ class PublicHandler(BaseHandler):
             "lang_page": self.helper.get_lang_page(self.helper.get_setting("language")),
             "query": "",
             "background": self.controller.cached_login,
+            "brand": self.controller.cached_brand,
             "login_opacity": self.controller.management.get_login_opacity(),
             "themes": self.helper.get_themes(),
         }
