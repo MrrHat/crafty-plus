@@ -100,6 +100,7 @@ from app.classes.web.routes.api.crafty.check import ApiCraftyCheck
 from app.classes.web.routes.api.crafty.config.index import (
     ApiCraftyConfigIndexHandler,
     ApiCraftyCustomizeIndexHandler,
+    ApiCraftyEmbedIndexHandler,
 )
 from app.classes.web.routes.api.crafty.config.server_dir import (
     ApiCraftyConfigServerDirHandler,
@@ -109,7 +110,10 @@ from app.classes.web.routes.api.crafty.clogs.index import ApiCraftyLogIndexHandl
 from app.classes.web.routes.api.crafty.clogs.support import ApiCraftySupportIndexHandler
 from app.classes.web.routes.api.crafty.imports.index import ApiImportFilesIndexHandler
 from app.classes.web.routes.api.crafty.imports.upload import APIServerImportUpload
-from app.classes.web.routes.api.crafty.config.upload import APICraftyCustomizeUpload
+from app.classes.web.routes.api.crafty.config.upload import (
+    APICraftyCustomizeUpload,
+    APICraftyEmbedUpload,
+)
 from app.classes.web.routes.api.crafty.exe_cache import (
     ApiCraftyJarCacheIndexHandler,
     ApiCraftySteamCacheIndexHandler,
@@ -166,6 +170,11 @@ def api_handlers(handler_args):
         (
             r"/api/v2/crafty/config/customize/?",
             ApiCraftyCustomizeIndexHandler,
+            handler_args,
+        ),
+        (
+            r"/api/v2/crafty/config/embed/?",
+            ApiCraftyEmbedIndexHandler,
             handler_args,
         ),
         (
@@ -383,6 +392,11 @@ def api_handlers(handler_args):
         (
             r"/api/v2/servers/([a-z0-9-]+)/files/zip/?",
             ApiServersServerFilesZipHandler,
+            handler_args,
+        ),
+        (
+            r"/api/v2/crafty/admin/upload/embed/?",
+            APICraftyEmbedUpload,
             handler_args,
         ),
         (

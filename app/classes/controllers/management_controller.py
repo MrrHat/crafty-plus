@@ -36,6 +36,14 @@ class ManagementController:
     def get_login_opacity():
         return HelpersManagement.get_login_opacity()
 
+    @staticmethod
+    def get_embed_settings():
+        return HelpersManagement.get_embed_settings()
+
+    @staticmethod
+    def set_embed_settings(data):
+        return HelpersManagement.set_embed_settings(data)
+
     # **********************************************************************************
     #                                   Host_Stats Methods
     # **********************************************************************************

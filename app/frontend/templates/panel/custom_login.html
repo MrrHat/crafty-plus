@@ -214,6 +214,69 @@
               </div>
             </div>
           </div>
+
+          <div class="row">
+            <div class="col-md-12 col-lg-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4>{{ translate('customLogin', 'embedTitle', data['lang']) }}</h4>
+                  <hr>
+                  <p>{{ translate('customLogin', 'embedHelp', data['lang']) }}</p>
+                  <form id="embed_form">
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label" for="og_enabled">{{ translate('customLogin', 'embedEnabled', data['lang']) }}</label>
+                      <div class="col-sm-9">
+                        <input type="checkbox" id="og_enabled" name="og_enabled" {% if data['embed_settings']['enabled'] %}checked{% end %}>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label" for="og_title">{{ translate('customLogin', 'embedTitleField', data['lang']) }}</label>
+                      <div class="col-sm-9">
+                        <input type="text" class="form-control" id="og_title" name="og_title" maxlength="255" value="{{ data['embed_settings']['title'] }}" placeholder="Crafty Controller">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label" for="og_description">{{ translate('customLogin', 'embedDescriptionField', data['lang']) }}</label>
+                      <div class="col-sm-9">
+                        <input type="text" class="form-control" id="og_description" name="og_description" maxlength="255" value="{{ data['embed_settings']['description'] }}">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label" for="og_color">{{ translate('customLogin', 'embedColorField', data['lang']) }}</label>
+                      <div class="col-sm-9">
+                        <input type="color" class="form-control" id="og_color" name="og_color" value="{{ data['embed_settings']['color'] }}">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label" for="og_image">{{ translate('customLogin', 'embedImageSelect', data['lang']) }}</label>
+                      <div class="col-sm-9">
+                        <div class="d-flex align-items-start">
+                          <img id="embed_thumb" src="{% if data['embed_settings']['image'] %}/static/assets/images/embed/{{ data['embed_settings']['image'] }}{% else %}/static/assets/images/Crafty_4-0.png{% end %}" alt="embed image preview" style="width: 96px; height: 96px; object-fit: contain; border: 1px solid var(--card-banner-bg, #444); border-radius: 4px; margin-right: 1rem;">
+                          <div class="flex-grow-1">
+                            <input type="file" id="embed_file" name="embed_file" accept="image/*" class="d-none">
+                            <button type="button" class="btn btn-info mb-2" id="embed-upload-new">{{ translate('customLogin', 'embedUploadNew', data['lang']) }}</button>
+                            <div class="form-group">
+                              <label for="og_image">{{ translate('customLogin', 'embedChooseExisting', data['lang']) }}</label>
+                              <select class="form-select form-control form-control-lg select-css" id="og_image" name="og_image">
+                                <option value="">{{ translate('customLogin', 'embedImageDefault', data['lang']) }}</option>
+                                {% for image in data["embed_images"] %}
+                                <option value="{{ image }}" {% if image == data['embed_settings']['image'] %}selected{% end %}>{{ image }}</option>
+                                {% end %}
+                              </select>
+                            </div>
+                            <div id="embed_progress"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <button class="btn btn-outline-success save-embed" type="button">{{ translate('customLogin', 'apply', data['lang']) }}</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -333,6 +396,91 @@
       });
     }
   })
+
+  // Holds a newly-picked File until Save uploads it (null = use the dropdown selection)
+  let pendingEmbedFile = null;
+
+  // "Upload new" opens the hidden file dialog
+  $('#embed-upload-new').click(function () {
+    $('#embed_file').click();
+  });
+
+  // Picking a file previews it locally and stashes it for upload on Save
+  $('#embed_file').change(function () {
+    const file = this.files[0];
+    if (!file) {
+      return;
+    }
+    pendingEmbedFile = file;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      $('#embed_thumb').attr('src', e.target.result);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Choosing an existing image clears any pending upload and previews the choice
+  $('#og_image').change(function () {
+    pendingEmbedFile = null;
+    const selected = $(this).val();
+    const src = selected
+      ? `/static/assets/images/embed/${selected}`
+      : `/static/assets/images/Crafty_4-0.png`;
+    $('#embed_thumb').attr('src', src);
+  });
+
+  $('.save-embed').click(async function () {
+    const button = $(this);
+    const originalLabel = button.html();
+    button.prop('disabled', true).html('<i class="ph ph-spinner-gap ph-spin"></i> ' + originalLabel);
+
+    // Upload a newly-picked file first; on failure, stop (uploadFile alerts).
+    let imageName = $('#og_image').find(":selected").val();
+    if (pendingEmbedFile) {
+      const ok = await uploadFile('embed', pendingEmbedFile, null, 0, null, null, 'embed_progress');
+      if (!ok) {
+        button.prop('disabled', false).html(originalLabel);
+        return;
+      }
+      imageName = pendingEmbedFile.name;
+    }
+
+    const payload = {
+      og_enabled: $('#og_enabled').is(':checked'),
+      og_title: $('#og_title').val(),
+      og_description: $('#og_description').val(),
+      og_image: imageName,
+      og_color: $('#og_color').val(),
+    };
+    const token = getCookie("_xsrf");
+    let res = await fetch(`/api/v2/crafty/config/embed`, {
+      method: 'PATCH',
+      headers: { 'X-XSRFToken': token },
+      body: JSON.stringify(payload),
+    });
+    let responseData = await res.json();
+    if (responseData.status === "ok") {
+      // Reflect a newly-uploaded image in the dropdown without a full reload
+      if (pendingEmbedFile) {
+        const select = $('#og_image');
+        if (!select.find(`option[value="${imageName}"]`).length) {
+          select.append(new Option(imageName, imageName));
+        }
+        select.val(imageName);
+        pendingEmbedFile = null;
+      }
+      // Replace the spinner with a checkmark, then fade it out and restore the button
+      button.html('<i class="ph ph-check"></i> ' + originalLabel);
+      setTimeout(function () {
+        button.find('i').fadeOut(600, function () {
+          button.prop('disabled', false).html(originalLabel);
+        });
+      }, 2000);
+    } else {
+      button.prop('disabled', false).html(originalLabel);
+      bootbox.alert({ title: responseData.error, message: responseData.error_data });
+    }
+  });
 
   $(document).ready(function () {
     let opacity = parseInt($("#modal_opacity").val());

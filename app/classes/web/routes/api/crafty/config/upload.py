@@ -15,6 +15,7 @@ IMAGE_MIME_TYPES = [
 ]
 
 CUSTOM_GRAPHICS = "app/frontend/static/assets/images/auth/custom"
+EMBED_GRAPHICS = "app/frontend/static/assets/images/embed"
 
 
 class APICraftyCustomizeUpload(ApiFilesUploadHandler):
@@ -72,5 +73,21 @@ class APICraftyCustomizeUpload(ApiFilesUploadHandler):
         self.upload_dir = Path(self.controller.project_root, CUSTOM_GRAPHICS)
         self.helper.validate_traversal(
             Path(self.controller.project_root, CUSTOM_GRAPHICS).resolve(),
+            Path(self.upload_dir, self.filename).resolve(),
+        )
+
+
+class APICraftyEmbedUpload(APICraftyCustomizeUpload):
+    """Uploads images used as the Open Graph preview image for link embeds.
+
+    Shares the superuser-only authorization and image mime type restrictions
+    of the login customization upload, but writes to its own directory.
+    """
+
+    def _check_traversal(self):
+        """Pins the upload to the embed image directory."""
+        self.upload_dir = Path(self.controller.project_root, EMBED_GRAPHICS)
+        self.helper.validate_traversal(
+            Path(self.controller.project_root, EMBED_GRAPHICS).resolve(),
             Path(self.upload_dir, self.filename).resolve(),
         )
