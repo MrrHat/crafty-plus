@@ -72,8 +72,12 @@ class ApiServersServerLogsHandler(BaseApiHandler):
             log_lines = self.helper.get_setting("max_log_lines")
             raw_lines = self.helper.tail_file(
                 # If the log path is absolute it returns it as is
-                # If it is relative it joins the paths below like normal
-                pathlib.Path(server_data["path"], server_data["log_path"]),
+                # If it is relative it joins the paths below like normal.
+                # resolve_log_path expands a glob (e.g. Hytale's per-boot files)
+                # to the newest matching file; a literal path is returned as-is.
+                self.helper.resolve_log_path(
+                    pathlib.Path(server_data["path"], server_data["log_path"])
+                ),
                 log_lines,
             )
 
