@@ -34,6 +34,7 @@ from app.classes.controllers.totp_controller import TOTPController
 from app.classes.controllers.passkey_controller import PasskeyController
 from app.classes.shared.authentication import Authentication
 from app.classes.shared.console import Console
+from app.classes.helpers.brand_helpers import resolve_brand_paths
 from app.classes.helpers.helpers import Helpers
 from app.classes.helpers.file_helpers import FileHelpers
 from app.classes.shared.import_helper import ImportHelpers
@@ -98,6 +99,7 @@ class Controller:
         )
         self.first_login = False
         self.cached_login = self.management.get_login_image()
+        self.cached_brand = resolve_brand_paths(self.management.get_brand_settings())
         self.support_scheduler.start()
         try:
             with open(
@@ -108,6 +110,14 @@ class Controller:
                 self.auth_tracker = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
             self.auth_tracker = {}
+
+    def refresh_brand_cache(self):
+        """Recompute the cached logo paths from the current brand settings.
+
+        Called after the logos endpoint saves new selections so that every
+        subsequently rendered page reflects the change without a restart.
+        """
+        self.cached_brand = resolve_brand_paths(self.management.get_brand_settings())
 
     def log_attempt(self, remote_ip, username):
         remote = self.auth_tracker.get(str(remote_ip), None)
@@ -253,8 +263,12 @@ class Controller:
                 final_path += "_" + server["server_id"]
                 os.mkdir(final_path)
             try:
+                # log_path may be a glob (e.g. Hytale's per-boot files); resolve to
+                # the newest matching file before copying it into the archive.
                 FileHelpers.copy_file(
-                    pathlib.Path(server["path"], server["log_path"]),
+                    Helpers.resolve_log_path(
+                        pathlib.Path(server["path"], server["log_path"])
+                    ),
                     final_path,
                 )
             except Exception as e:
@@ -585,9 +599,16 @@ class Controller:
             # TODO: different default stop commands for server creation types
             stop_command = "stop"
 
+        # Default log location per creation type. Minecraft Java reuses a fixed
+        # latest.log; Hytale writes a new timestamped file each boot, so it uses a
+        # glob that resolve_log_path() expands to the newest file at read time.
+        default_log_locations = {
+            "minecraft_java": "./logs/latest.log",
+            "hytale": "./logs/*_server.log",
+        }
         log_location = data.get("log_location", "")
-        if log_location == "" and data["create_type"] == "minecraft_java":
-            log_location = "./logs/latest.log"
+        if log_location == "":
+            log_location = default_log_locations.get(data["create_type"], "")
 
         new_server_id = self.register_server(
             name=data["name"],

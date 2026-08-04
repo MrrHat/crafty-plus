@@ -11,6 +11,7 @@ from app.classes.models.server_permissions import EnumPermissionsServer
 from app.classes.models.users import ApiKeys
 from app.classes.helpers.helpers import Helpers
 from app.classes.helpers.file_helpers import FileHelpers
+from app.classes.helpers.embed_helpers import build_embed_meta
 from app.classes.shared.main_controller import Controller
 from app.classes.shared.translation import Translation
 from app.classes.shared.main_models import DatabaseShortcuts
@@ -98,6 +99,12 @@ class BaseHandler(tornado.web.RequestHandler):
             return str(ipaddress.ip_address((remote_ip or header_ip)))
         except ValueError:
             return "0.0.0.0"
+
+    def get_embed_meta(self, page_path):
+        """Build OG embed metadata for a public page, or None if disabled."""
+        settings = self.controller.management.get_embed_settings()
+        base_url = f"{self.request.protocol}://{self.request.host}"
+        return build_embed_meta(settings, base_url, page_path)
 
     current_user: t.Tuple[t.Optional[ApiKeys], t.Dict[str, t.Any], t.Dict[str, t.Any]]
     """

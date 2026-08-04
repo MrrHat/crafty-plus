@@ -1,6 +1,7 @@
 import base64
 import contextlib
 import ctypes
+import glob
 import html
 import itertools
 import json
@@ -94,6 +95,7 @@ MASTER_CONFIG = {
     ],
     "sampling_fallback_divisor": 12,
     "trusted_proxies": [],
+    "max_image_upload_size_mb": 5,
 }
 
 CONFIG_CATEGORIES = {
@@ -107,6 +109,7 @@ CONFIG_CATEGORIES = {
         "enable_user_self_delete",
         "base_url",
         "experimental",
+        "max_image_upload_size_mb",
     ],
     "security": [
         "allow_nsfw_profile_pictures",
@@ -906,6 +909,36 @@ class Helpers:
         if base == common_path:
             return fileabs
         raise ValueError("Path traversal detected")
+
+    @staticmethod
+    def resolve_log_path(log_path):
+        """Resolve a server log path that may be a glob pattern to a concrete file.
+
+        Server types such as Hytale write a new timestamped log file on every boot
+        (e.g. ``2026-02-18_01-21-32_server.log``) rather than reusing a fixed name like
+        Minecraft's ``latest.log``. Storing a glob pattern in ``log_path`` lets the
+        Logs tab always follow the active file.
+
+        :param log_path: A path that may contain glob metacharacters (``* ? [``). It is
+            expected to already be joined with the server directory by the caller.
+        :return: The newest matching file by modification time as a
+            :class:`pathlib.Path`. A path with no glob characters is returned unchanged.
+            If the pattern matches nothing, it is returned as-is so downstream
+            "file not found" handling still fires.
+        """
+        log_path = str(log_path)
+
+        # Check for magic chars, return early if none present
+        if not re.search(r"[*?[]", log_path):
+            return pathlib.Path(log_path)
+
+        matches = glob.glob(log_path)
+        if not matches:
+            return pathlib.Path(log_path)
+
+        # Newest by mtime reflects the file currently being written, which stays
+        # correct even if the naming scheme changes or files are copied in.
+        return pathlib.Path(max(matches, key=os.path.getmtime))
 
     @staticmethod
     def tail_file(file_name, number_lines=20):

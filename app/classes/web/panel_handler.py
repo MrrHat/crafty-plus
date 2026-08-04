@@ -1,6 +1,7 @@
 # pylint: disable=too-many-lines
 import time
 import datetime
+import mimetypes
 import os
 import typing as t
 import json
@@ -227,6 +228,41 @@ class PanelHandler(BaseHandler):
             data = await file.read()
         return data
 
+    def _list_embed_images(self):
+        embed_dir = os.path.join(
+            self.controller.project_root,
+            "app/frontend/static/assets/images/embed",
+        )
+        self.helper.ensure_dir_exists(embed_dir)
+        images = []
+        for item in os.listdir(embed_dir):
+            mime_type, _ = mimetypes.guess_type(item)
+            if mime_type and mime_type.startswith("image/"):
+                images.append(item)
+        return images
+
+    def _list_logo_images(self, kind):
+        """List uploaded logo image filenames for a given kind.
+
+        Args:
+            kind: "full" or "square" — selects the logos subfolder.
+
+        Returns:
+            list of image filenames present in that folder.
+        """
+        logo_dir = os.path.join(
+            self.controller.project_root,
+            "app/frontend/static/assets/images/logos",
+            kind,
+        )
+        self.helper.ensure_dir_exists(logo_dir)
+        images = []
+        for item in os.listdir(logo_dir):
+            mime_type, _ = mimetypes.guess_type(item)
+            if mime_type and mime_type.startswith("image/"):
+                images.append(item)
+        return images
+
     @tornado.web.authenticated
     async def get(self, page):
         self.failed_server = False
@@ -323,6 +359,7 @@ class PanelHandler(BaseHandler):
             or exec_user["superuser"],
             "docker": self.helper.is_env_docker(),
             "background": self.controller.cached_login,
+            "brand": self.controller.cached_brand,
             "login_opacity": self.controller.management.get_login_opacity(),
             "serverTZ": tz,
             "monitored": self.helper.get_setting("monitored_mounts"),
@@ -1039,6 +1076,15 @@ class PanelHandler(BaseHandler):
                 page_data["login_opacity"] = (
                     self.controller.management.get_login_opacity()
                 )
+                page_data["embed_settings"] = (
+                    self.controller.management.get_embed_settings()
+                )
+                page_data["embed_images"] = self._list_embed_images()
+                page_data["brand_settings"] = (
+                    self.controller.management.get_brand_settings()
+                )
+                page_data["logo_full_images"] = self._list_logo_images("full")
+                page_data["logo_square_images"] = self._list_logo_images("square")
 
                 page_data["active_link"] = "custom_login"
                 template = "panel/custom_login.html"
