@@ -27,6 +27,7 @@ class StatusHandler(BaseHandler):
                 srv["raw_ping_result"]["icon"] = False
 
         page_data["running"] = running
+        page_data["embed"] = self.get_embed_meta("/status")
 
         template = "public/status.html"
 
@@ -45,6 +46,7 @@ class StatusHandler(BaseHandler):
             srv["raw_ping_result"] = self.controller.servers.get_server_stats_by_id(
                 server_id
             )
+        page_data["embed"] = self.get_embed_meta("/status")
         template = "public/status.html"
 
         self.render(

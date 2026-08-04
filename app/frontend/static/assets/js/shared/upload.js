@@ -42,7 +42,7 @@ async function uploadChunk(file, url, chunk, start, end, chunk_hash, totalChunks
         });
 }
 
-async function uploadFile(type, file = null, path = null, file_num = 0, fileId = null, _onProgress = null) {
+async function uploadFile(type, file = null, path = null, file_num = 0, fileId = null, _onProgress = null, progressTargetId = "upload_input") {
     if (file == null) {
         try {
             file = $("#file")[0].files[0];
@@ -56,7 +56,7 @@ async function uploadFile(type, file = null, path = null, file_num = 0, fileId =
     }
     const token = getCookie("_xsrf");
     if (type !== "server_upload") {
-        document.getElementById("upload_input").innerHTML = '<div class="progress" style="width: 100%;"><div id="upload-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">&nbsp;<i class="ph-bold ph-spinner-gap"></i></div></div>';
+        document.getElementById(progressTargetId).innerHTML = '<div class="progress" style="width: 100%;"><div id="upload-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">&nbsp;<i class="ph-bold ph-spinner-gap"></i></div></div>';
     }
 
     let url = '';
@@ -64,6 +64,8 @@ async function uploadFile(type, file = null, path = null, file_num = 0, fileId =
         url = `/api/v2/servers/${serverId}/files/upload/`;
     } else if (type === "background") {
         url = `/api/v2/crafty/admin/upload/`;
+    } else if (type === "embed") {
+        url = `/api/v2/crafty/admin/upload/embed/`;
     } else if (type === "import") {
         url = `/api/v2/servers/import/upload/`;
     }
@@ -163,7 +165,7 @@ async function uploadFile(type, file = null, path = null, file_num = 0, fileId =
         });
     } else if (type !== "server_upload") {
         // All promises resolved successfully
-        $("#upload_input").html(`<div class="card-header header-sm d-flex justify-content-between align-items-center" style="width: 100%;"><input value="${file.name}" type="text" id="file-uploaded" disabled></input> 🔒</div>`);
+        $("#" + progressTargetId).html(`<div class="card-header header-sm d-flex justify-content-between align-items-center" style="width: 100%;"><input value="${file.name}" type="text" id="file-uploaded" disabled></input> 🔒</div>`);
         if (type === "import") {
             document.getElementById("lower_half").classList.remove("d-none");
             document.getElementById("lower_half").hidden = false;
@@ -185,6 +187,7 @@ async function uploadFile(type, file = null, path = null, file_num = 0, fileId =
         }
     }
     activeUploads--;
+    return errors.length === 0;
 }
 
 async function calculateFileHash(file) {

@@ -24,6 +24,7 @@ class PublicHandler(BaseHandler):
             "login_opacity": self.controller.management.get_login_opacity(),
             "themes": self.helper.get_themes(),
         }
+        page_data["embed"] = self.get_embed_meta("/login")
 
         if self.request.query:
             request_query = self.request.query_arguments.get("next")

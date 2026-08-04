@@ -1,0 +1,9 @@
+{% if data.get("embed") %}
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ data['embed']['title'] }}">
+<meta property="og:description" content="{{ data['embed']['description'] }}">
+<meta property="og:image" content="{{ data['embed']['image'] }}">
+<meta property="og:url" content="{{ data['embed']['url'] }}">
+<meta name="theme-color" content="{{ data['embed']['color'] }}">
+<meta name="twitter:card" content="summary_large_image">
+{% end %}

@@ -1,6 +1,7 @@
 # pylint: disable=too-many-lines
 import time
 import datetime
+import mimetypes
 import os
 import typing as t
 import json
@@ -226,6 +227,19 @@ class PanelHandler(BaseHandler):
         async with aiofiles.open(file_path, "r") as file:
             data = await file.read()
         return data
+
+    def _list_embed_images(self):
+        embed_dir = os.path.join(
+            self.controller.project_root,
+            "app/frontend/static/assets/images/embed",
+        )
+        self.helper.ensure_dir_exists(embed_dir)
+        images = []
+        for item in os.listdir(embed_dir):
+            mime_type, _ = mimetypes.guess_type(item)
+            if mime_type and mime_type.startswith("image/"):
+                images.append(item)
+        return images
 
     @tornado.web.authenticated
     async def get(self, page):
@@ -1039,6 +1053,10 @@ class PanelHandler(BaseHandler):
                 page_data["login_opacity"] = (
                     self.controller.management.get_login_opacity()
                 )
+                page_data["embed_settings"] = (
+                    self.controller.management.get_embed_settings()
+                )
+                page_data["embed_images"] = self._list_embed_images()
 
                 page_data["active_link"] = "custom_login"
                 template = "panel/custom_login.html"

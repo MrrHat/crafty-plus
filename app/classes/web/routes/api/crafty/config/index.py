@@ -226,6 +226,18 @@ photo_delete_schema = {
     "additionalProperties": False,
     "minProperties": 1,
 }
+embed_json_schema = {
+    "type": "object",
+    "properties": {
+        "og_enabled": {"type": "boolean", "error": "typeBool"},
+        "og_title": {"type": "string", "error": "typeString"},
+        "og_description": {"type": "string", "error": "typeString"},
+        "og_image": {"type": "string", "error": "typeString"},
+        "og_color": {"type": "string", "error": "typeString"},
+    },
+    "additionalProperties": False,
+    "minProperties": 1,
+}
 DEFAULT_PHOTO = "login_1.jpg"
 
 
@@ -541,3 +553,50 @@ class ApiCraftyCustomizeIndexHandler(BaseApiHandler):
             self.controller.management.set_login_image(DEFAULT_PHOTO)
             self.controller.cached_login = DEFAULT_PHOTO
         return self.finish_json(200, {"status": "ok"})
+
+
+class ApiCraftyEmbedIndexHandler(BaseApiHandler):
+    def patch(self):
+        auth_data = self.authenticate_user()
+        if not auth_data:
+            return
+
+        if not auth_data[4]["superuser"]:
+            return self.finish_json(
+                400,
+                {
+                    "status": "error",
+                    "error": "NOT_AUTHORIZED",
+                    "error_data": self.helper.translation.translate(
+                        "validators", "insufficientPerms", auth_data[4]["lang"]
+                    ),
+                },
+            )
+
+        try:
+            data = orjson.loads(self.request.body)
+        except orjson.JSONDecodeError as e:
+            return self.finish_json(
+                400, {"status": "error", "error": "INVALID_JSON", "error_data": str(e)}
+            )
+
+        try:
+            validate(data, embed_json_schema)
+        except ValidationError as e:
+            return self.finish_json(
+                400,
+                {
+                    "status": "error",
+                    "error": "INVALID_JSON_SCHEMA",
+                    "error_data": str(e),
+                },
+            )
+
+        self.controller.management.set_embed_settings(data)
+        self.controller.management.add_to_audit_log(
+            auth_data[4]["user_id"],
+            "updated discord embed settings",
+            server_id=None,
+            source_ip=self.get_remote_ip(),
+        )
+        return self.finish_json(200, {"status": "ok", "data": data})
