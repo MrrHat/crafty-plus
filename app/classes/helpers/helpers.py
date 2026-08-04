@@ -94,6 +94,7 @@ MASTER_CONFIG = {
         {"max_hours": 72, "sample_rate": 6},
     ],
     "sampling_fallback_divisor": 12,
+    "max_image_upload_size_mb": 5,
 }
 
 CONFIG_CATEGORIES = {
@@ -107,6 +108,7 @@ CONFIG_CATEGORIES = {
         "enable_user_self_delete",
         "base_url",
         "experimental",
+        "max_image_upload_size_mb",
     ],
     "security": [
         "allow_nsfw_profile_pictures",

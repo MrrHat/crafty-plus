@@ -31,6 +31,8 @@ class CraftySettings(BaseModel):
     cookie_secret = CharField(default="")
     login_photo = CharField(default="login_1.jpg")
     login_opacity = IntegerField(default=100)
+    logo_full = CharField(default="")
+    logo_square = CharField(default="")
     og_enabled = BooleanField(default=True)
     og_title = CharField(default="")
     og_description = CharField(default="")
@@ -286,6 +288,38 @@ class HelpersManagement:
             "og_color": CraftySettings.og_color,
         }
         update = {column: data[key] for key, column in fields.items() if key in data}
+        if update:
+            CraftySettings.update(update).where(CraftySettings.id == 1).execute()
+
+    @staticmethod
+    def get_brand_settings():
+        """Return the configured logo filenames.
+
+        Returns a dict with keys 'full' and 'square'; an empty string means
+        no custom logo is set (the stock Crafty logo is used).
+        """
+        settings = (
+            CraftySettings.select(
+                CraftySettings.logo_full,
+                CraftySettings.logo_square,
+            )
+            .where(CraftySettings.id == 1)
+            .first()
+        )
+        return {"full": settings.logo_full, "square": settings.logo_square}
+
+    @staticmethod
+    def set_brand_settings(data):
+        """Persist logo filename settings.
+
+        Only keys present in `data` are updated, so callers may patch a single
+        logo at a time. Accepts 'logo_full' and/or 'logo_square'.
+        """
+        fields = {
+            "logo_full": CraftySettings.logo_full,
+            "logo_square": CraftySettings.logo_square,
+        }
+        update = {col: data[key] for key, col in fields.items() if key in data}
         if update:
             CraftySettings.update(update).where(CraftySettings.id == 1).execute()
 

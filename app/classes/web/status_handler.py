@@ -9,6 +9,7 @@ class StatusHandler(BaseHandler):
     def get(self):
         page_data = {
             "background": self.controller.cached_login,
+            "brand": self.controller.cached_brand,
             "lang": self.helper.get_setting("language"),
             "lang_page": self.helper.get_lang_page(self.helper.get_setting("language")),
             "servers": self.controller.servers.get_all_servers_stats(),
@@ -39,6 +40,7 @@ class StatusHandler(BaseHandler):
 
     def post(self):
         page_data = {}
+        page_data["brand"] = self.controller.cached_brand
         page_data["servers"] = self.controller.servers.get_all_servers_stats()
         for srv in page_data["servers"]:
             server_data = srv.get("server_data", False)

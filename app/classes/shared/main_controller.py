@@ -34,6 +34,7 @@ from app.classes.controllers.totp_controller import TOTPController
 from app.classes.controllers.passkey_controller import PasskeyController
 from app.classes.shared.authentication import Authentication
 from app.classes.shared.console import Console
+from app.classes.helpers.brand_helpers import resolve_brand_paths
 from app.classes.helpers.helpers import Helpers
 from app.classes.helpers.file_helpers import FileHelpers
 from app.classes.shared.import_helper import ImportHelpers
@@ -98,6 +99,7 @@ class Controller:
         )
         self.first_login = False
         self.cached_login = self.management.get_login_image()
+        self.cached_brand = resolve_brand_paths(self.management.get_brand_settings())
         self.support_scheduler.start()
         try:
             with open(
@@ -108,6 +110,14 @@ class Controller:
                 self.auth_tracker = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
             self.auth_tracker = {}
+
+    def refresh_brand_cache(self):
+        """Recompute the cached logo paths from the current brand settings.
+
+        Called after the logos endpoint saves new selections so that every
+        subsequently rendered page reflects the change without a restart.
+        """
+        self.cached_brand = resolve_brand_paths(self.management.get_brand_settings())
 
     def log_attempt(self, remote_ip, username):
         remote = self.auth_tracker.get(str(remote_ip), None)

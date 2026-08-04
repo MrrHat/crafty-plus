@@ -1,0 +1,69 @@
+{#
+  Reusable image picker element.
+
+  Renders a thumbnail (drag-and-drop + live preview), a compact one-line control
+  row [ select | delete | upload ], a recommended-size hint and a progress area.
+  Image changes apply instantly (see the generic `.image-picker` handler in the
+  consuming page's JS) -- there is no per-image Apply button.
+
+  Set a `picker` dict immediately before including this file. Keys:
+    id            base id; derives #{id}_thumb / _select / _file / _progress
+    label         heading text
+    options       list of existing filenames for the dropdown
+    selected      currently-selected filename (equal to default_value = stock)
+    default_label dropdown label for the stock/default entry
+    default_value select value meaning "use stock" ('' for logos/embed,
+                  'login_1.jpg' for background). A synthetic default <option> is
+                  only rendered when this value is not already in `options`.
+    recommended   recommended size string, e.g. '512x128'
+    thumb_src     initial thumbnail src
+    upload_type   uploadFile() type: background | embed | logo_full | logo_square
+    endpoint      PATCH endpoint that persists the selected image
+    delete_endpoint DELETE endpoint
+    payload_key   request key carrying the filename: photo | og_image | logo_full | logo_square
+    image_base    URL prefix for an existing image: `${image_base}/${name}`
+    stock_src     thumbnail src shown for the default/stock value
+    preview_extra (optional) extra img selector(s) updated alongside the thumb
+#}
+<div class="image-picker"
+     data-id="{{ picker['id'] }}"
+     data-upload-type="{{ picker['upload_type'] }}"
+     data-endpoint="{{ picker['endpoint'] }}"
+     data-delete-endpoint="{{ picker['delete_endpoint'] }}"
+     data-payload-key="{{ picker['payload_key'] }}"
+     data-image-base="{{ picker['image_base'] }}"
+     data-stock-src="{{ picker['stock_src'] }}"
+     data-default-value="{{ picker['default_value'] }}"
+     data-preview-extra="{{ picker.get('preview_extra', '') }}">
+  <label for="{{ picker['id'] }}_select">{{ picker['label'] }}</label>
+  <div class="d-flex align-items-start">
+    <div class="brand-thumb">
+      <img id="{{ picker['id'] }}_thumb" src="{{ picker['thumb_src'] }}" alt="{{ picker['label'] }} preview">
+    </div>
+    <div class="flex-grow-1">
+      <div class="image-picker-row">
+        <select class="form-select form-control form-control-lg select-css" id="{{ picker['id'] }}_select">
+          {% if picker['default_value'] not in picker['options'] %}
+          <option value="{{ picker['default_value'] }}" {% if picker['selected'] == picker['default_value'] %}selected{% end %}>{{ picker['default_label'] }}</option>
+          {% end %}
+          {% for image in picker['options'] %}
+          <option value="{{ image }}" {% if image == picker['selected'] %}selected{% end %}>{{ image }}</option>
+          {% end %}
+        </select>
+        <button type="button" class="btn btn-outline-danger btn-icon delete-image-picker"
+                title="{{ translate('customLogin', 'delete', data['lang']) }}"
+                aria-label="{{ translate('customLogin', 'delete', data['lang']) }}">
+          <i class="ph-fill ph-trash-simple" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn btn-info btn-icon upload-image-picker"
+                title="{{ translate('customLogin', 'uploadImage', data['lang']) }}"
+                aria-label="{{ translate('customLogin', 'uploadImage', data['lang']) }}">
+          <i class="ph ph-cloud-arrow-up" aria-hidden="true"></i>
+        </button>
+        <input type="file" id="{{ picker['id'] }}_file" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/tiff" class="d-none">
+      </div>
+      <small class="text-muted d-block mt-2">{{ translate('customLogin', 'recommendedSize', data['lang']) }} {{ picker['recommended'] }}</small>
+      <div id="{{ picker['id'] }}_progress"></div>
+    </div>
+  </div>
+</div>

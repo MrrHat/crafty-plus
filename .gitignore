@@ -23,6 +23,7 @@ venv.bak/
 /servers/
 /app/frontend/static/assets/images/auth/custom/
 /app/frontend/static/assets/images/embed/
+/app/frontend/static/assets/images/logos/
 /backups/
 /temp/
 /docker/servers/

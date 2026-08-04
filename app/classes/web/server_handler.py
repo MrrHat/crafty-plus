@@ -146,6 +146,7 @@ class ServerHandler(BaseHandler):
             ),
             "superuser": superuser,
             "themes": self.helper.get_themes(),
+            "brand": self.controller.cached_brand,
         }
 
         page_data["server_api"] = self.controller.big_bucket._check_bucket_alive()

@@ -16,6 +16,16 @@ FAILED_MSG = "Failed to upload files with error: %s"
 class ApiFilesUploadHandler(BaseApiHandler):
     upload_locks = {}
 
+    # Set by subclasses that only accept raster images. Those uploads are
+    # rejected outright when the bytes turn out not to be a decodable image;
+    # for everything else a failed EXIF strip is merely logged.
+    image_upload = False
+
+    # Translation key (in the "validators" section) explaining a rejected mime
+    # type. Subclasses accepting a narrow, describable set of files set this so
+    # the user reads prose instead of a raw mime type list.
+    invalid_type_key = None
+
     def get_lock(self, key: str) -> asyncio.Lock:
         """Get or create a lock for the given key."""
         if key not in self.upload_locks:
@@ -23,18 +33,27 @@ class ApiFilesUploadHandler(BaseApiHandler):
         return self.upload_locks[key]
 
     def _finish_unauthorized(self, auth_data):
+        """Return a standardized NOT_AUTHORIZED error.
+
+        The upload client (``upload.js``) reads error text from ``data.message``,
+        so every error response on these endpoints must use that shape.
+        """
         return self.finish_json(
             400,
             {
                 "status": "error",
                 "error": "NOT_AUTHORIZED",
-                "error_data": self.helper.translation.translate(
-                    "validators", "insufficientPerms", auth_data[4]["lang"]
-                ),
+                "data": {
+                    "message": self.helper.translation.translate(
+                        "validators", "insufficientPerms", auth_data[4]["lang"]
+                    )
+                },
             },
         )
 
-    def _parse_and_validate_request(self, accepted_types: list) -> bool:
+    def _parse_and_validate_request(
+        self, accepted_types: list, lang: str = None
+    ) -> bool:
         """Parses headers and runs path traversal validations.
         Returns False if error response sent."""
         self.chunk_hash = self.request.headers.get("chunkHash", 0)
@@ -55,7 +74,12 @@ class ApiFilesUploadHandler(BaseApiHandler):
         except ValueError as why:
             logger.exception(FAILED_MSG, str(why))
             self.finish_json(
-                400, {"status": "error", "error": "BAD REQUEST", "error_data": str(why)}
+                400,
+                {
+                    "status": "error",
+                    "error": "BAD REQUEST",
+                    "data": {"message": str(why)},
+                },
             )
             return False
 
@@ -63,14 +87,17 @@ class ApiFilesUploadHandler(BaseApiHandler):
             len(accepted_types) > 0
             and self.file_helper.check_mime_types(self.filename) not in accepted_types
         ):  # If accepted types has nothing then we'll accept everything
+            message = f"Invalid File Type only accepts {accepted_types}"
+            if self.invalid_type_key:
+                message = self.helper.translation.translate(
+                    "validators", self.invalid_type_key, lang
+                )
             self.finish_json(
                 422,
                 {
                     "status": "error",
                     "error": "INVALID FILE TYPE",
-                    "data": {
-                        "message": f"Invalid File Type only accepts {accepted_types}"
-                    },
+                    "data": {"message": message},
                 },
             )
             return False
@@ -146,7 +173,12 @@ class ApiFilesUploadHandler(BaseApiHandler):
         except ValueError as why:
             logger.exception(FAILED_MSG, str(why))
             return self.finish_json(
-                400, {"status": "error", "error": "BAD REQUEST", "error_data": str(why)}
+                400,
+                {
+                    "status": "error",
+                    "error": "BAD REQUEST",
+                    "data": {"message": str(why)},
+                },
             )
 
         async with self.get_lock(self.file_id):
@@ -163,11 +195,17 @@ class ApiFilesUploadHandler(BaseApiHandler):
                 await self._assemble_chunks(file_path, total_chunks, auth_data)
                 self._cleanup_temp_resources()
 
-                try:
-                    self._strip_exif(file_path)
-                except UnidentifiedImageError as why:
-                    logger.exception(
-                        "Tried to sanitize path that's not an image: %s", why
+                if not self._strip_exif(file_path) and self.image_upload:
+                    # Not a valid raster image: drop it and report cleanly rather
+                    # than letting the request 500 with an HTML page.
+                    os.remove(file_path)
+                    return self.finish_json(
+                        422,
+                        {
+                            "status": "error",
+                            "error": "INVALID FILE TYPE",
+                            "data": {"message": "Uploaded file is not a valid image"},
+                        },
                     )
 
                 logger.info(
@@ -224,11 +262,20 @@ class ApiFilesUploadHandler(BaseApiHandler):
         except OSError as why:
             logger.exception("Failed to remove temp dir with error: %s", why)
 
-    def _strip_exif(self, image_path):
-        """Removes EXIF metadata from uploaded imagery."""
+    def _strip_exif(self, image_path) -> bool:
+        """Removes EXIF metadata from uploaded imagery.
+
+        Returns False when the file isn't a decodable raster image, leaving it
+        on disk untouched so the caller can decide whether that's an error.
+        """
         logger.debug("Stripping exif data from image")
-        with Image.open(image_path) as image:
-            image_data = list(image.getdata())
-            image_no_exif = Image.new(image.mode, image.size)
-            image_no_exif.putdata(image_data)
-            image_no_exif.save(image_path)
+        try:
+            with Image.open(image_path) as image:
+                image_data = list(image.getdata())
+                image_no_exif = Image.new(image.mode, image.size)
+                image_no_exif.putdata(image_data)
+                image_no_exif.save(image_path)
+        except (UnidentifiedImageError, OSError) as why:
+            logger.error("Could not process image %s: %s", image_path, why)
+            return False
+        return True
