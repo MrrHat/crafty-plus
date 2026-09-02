@@ -57,7 +57,7 @@
     "customLogin": {
         "apply": "Uygula",
         "backgroundUpload": "Arkaplan Yükleme",
-        "customLoginPage": "Giriş Ekranını Düzenle",
+        "customLoginPage": "Görünüş ve Markalama",
         "delete": "Sil",
         "labelLoginImage": "Oturum Açma Sayfası Arkaplanını Seç",
         "loginBackground": "Oturum Açma Sayfası",
@@ -66,7 +66,32 @@
         "pageTitle": "Özelleştirilmiş Oturum Açma Sayfası",
         "preview": "Ön İzleme",
         "select": "Seç",
-        "selectImage": "Bir resim seçin"
+        "selectImage": "Bir resim seçin",
+        "backgroundChooseExisting": "Mevcut olanı seçin",
+        "backgroundUploadNew": "Yeni arka plan yükle",
+        "changeApplied": "Değişiklik uygulandı",
+        "embedChooseExisting": "Mevcut olanı seçin",
+        "embedColorField": "Vurgu rengi",
+        "embedDescriptionField": "Gömülü içerik açıklaması",
+        "embedEnabled": "Gömülü içerikleri etkinleştir",
+        "embedHelp": "Panel bağlantınızın Discord ve diğer platformlarda paylaşıldığında nasıl önizleneceğini özelleştirin.",
+        "embedImageDefault": "Varsayılan (Crafty logosu)",
+        "embedImageSelect": "Gömülü içerik resmi",
+        "embedImageUpload": "Gömülü içerik resmi yükle",
+        "embedTitle": "Bağlantı Önizlemeleri",
+        "embedTitleField": "Gömülü içerik başlığı",
+        "embedUploadNew": "Yeni yükle",
+        "imageDeleted": "Resim silindi",
+        "logoChooseExisting": "Mevcut olanı seçin",
+        "logoDefault": "Varsayılan (Crafty logosu)",
+        "logoFull": "Tam logo (geniş)",
+        "logoSquare": "Kare logo (simge)",
+        "logoUploadNew": "Yeni logo yükle",
+        "logosTitle": "Paneliniz için özel logolar yükleyin.",
+        "nothingToDelete": "Bu varsayılan resimdir — silinecek bir şey yok.",
+        "recommendedSize": "Önerilen boyut:",
+        "unsavedChanges": "Henüz uygulanmadı. Kaydetmek için “Uygula” düğmesine tıklayın.",
+        "uploadImage": "Yeni yükle"
     },
     "dashboard": {
         "actions": "Eylemler",
@@ -759,7 +784,9 @@
         "additionalProperties": "Ek Özelliklerin geçirilmesine izin verilmez",
         "mfaName": "Özellik için girdi, dize türünde olmalı ve en az 3 karakter içermelidir",
         "passProp": "Şifre en az 8 karakterden oluşan bir dize olmalıdır.",
-        "typeEpoch": "bir epoch değeri olmalıdır"
+        "typeEpoch": "bir epoch değeri olmalıdır",
+        "imageTooLarge": "Resim çok büyük. Maksimum yükleme boyutu {} MB'dir.",
+        "invalidImageType": "Geçersiz dosya türü. Lütfen bir resim yükleyin (PNG, JPG, GIF, WebP, BMP veya TIFF)."
     },
     "webhooks": {
         "areYouSureDel": "Bu webhooku silmek istediğinizden emin misiniz?",
@@ -851,7 +878,8 @@
         "passkey_rp_name": "Geçiş anahtarı güvenen taraf adı (kimlik doğrulayıcı bildirimlerinde görüntülenir)",
         "enable_passkey_auth": "Geçiş anahtarı (WebAuthn) kimlik doğrulamasını etkinleştir",
         "sampling_fallback_divisor": "Yedek örnekleme bölücü (son kademe dışındaki zaman aralıkları için kullanılır)",
-        "sampling_tiers": "Grafik verisi örnekleme kademeleri (zaman aralığı başına veri noktası yoğunluğunu kontrol eder)"
+        "sampling_tiers": "Grafik verisi örnekleme kademeleri (zaman aralığı başına veri noktası yoğunluğunu kontrol eder)",
+        "max_image_upload_size_mb": "Logo ve arka plan gibi panel resimlerinin yüklenmesi için izin verilen maksimum boyut (MB)"
     },
     "serverFilesEditor": {
         "saved": "Kaydedildi",
