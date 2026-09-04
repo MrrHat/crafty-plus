@@ -455,6 +455,7 @@
         "files": "Dateien",
         "filter": "Logs filtern",
         "filterList": "Gefilterte Wörter",
+        "logFile": "Log-Datei",
         "logs": "Logs",
         "metrics": "Metriken",
         "playerControls": "Spieler-Verwaltung",

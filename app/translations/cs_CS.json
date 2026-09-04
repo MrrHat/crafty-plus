@@ -421,6 +421,7 @@
         "files": "Soubory",
         "filter": "Filtrovat protokoly",
         "filterList": "Filtrovaná slova",
+        "logFile": "Soubor protokolu",
         "logs": "Protokoly",
         "metrics": "Metrika",
         "playerControls": "Správa hráčů",

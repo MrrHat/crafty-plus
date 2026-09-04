@@ -337,6 +337,7 @@
         "backup": "Sigurnosna kopija",
         "config": "Konfiguracija",
         "files": "Datoteke",
+        "logFile": "Datoteka zapisnika",
         "logs": "Zapisnik",
         "playerControls": "Upravljanje igračima",
         "schedule": "Raspored",

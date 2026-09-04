@@ -435,6 +435,7 @@
         "files": "Pliki",
         "filter": "Filtruj Logi",
         "filterList": "Filtrowane słowa",
+        "logFile": "Plik logu",
         "logs": "Logi",
         "metrics": "Statystyki",
         "playerControls": "Zarządzanie użytkownikami",

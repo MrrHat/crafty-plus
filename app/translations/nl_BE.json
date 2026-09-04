@@ -443,6 +443,7 @@
         "files": "Bestanden",
         "filter": "Logs filteren",
         "filterList": "Gefilterde woorden",
+        "logFile": "Logbestand",
         "logs": "Logboeken",
         "metrics": "Metrics",
         "playerControls": "Spelersbeheer",

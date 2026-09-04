@@ -480,6 +480,7 @@
         "files": "文件",
         "filter": "过滤日志",
         "filterList": "被过滤的字符",
+        "logFile": "日志文件",
         "logs": "日志",
         "metrics": "指标",
         "playerControls": "玩家管理",

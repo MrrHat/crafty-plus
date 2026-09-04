@@ -435,6 +435,7 @@
         "files": "Archivos",
         "filter": "Filtrar Registros",
         "filterList": "Palabras filtradas",
+        "logFile": "Archivo de registro",
         "logs": "Registros",
         "metrics": "Métricas",
         "playerControls": "Gestionar jugadores",

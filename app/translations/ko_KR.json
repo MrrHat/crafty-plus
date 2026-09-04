@@ -612,6 +612,7 @@
         "files": "파일",
         "filter": "로그 필터",
         "filterList": "필터링된 단어",
+        "logFile": "로그 파일",
         "logs": "로그",
         "metrics": "모니터링",
         "playerControls": "플레이어 관리",
