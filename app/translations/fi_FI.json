@@ -342,7 +342,6 @@
         "backup": "Varmuuskopiot",
         "config": "Asetukset",
         "files": "Tiedostojenhallinta",
-        "logFile": "Lokitiedosto",
         "logs": "Lokit",
         "playerControls": "Pelaajahallinta",
         "schedule": "Ajoitus",

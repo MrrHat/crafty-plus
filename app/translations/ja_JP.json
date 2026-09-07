@@ -37,7 +37,6 @@
         "files": "ファイル",
         "filter": "フィルターされたログ",
         "filterList": "フィルターする単語",
-        "logFile": "ログファイル",
         "logs": "ログ",
         "metrics": "メトリクス",
         "playerControls": "プレイヤー管理",

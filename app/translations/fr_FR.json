@@ -455,7 +455,6 @@
         "files": "Fichiers",
         "filter": "Filtrer les journaux",
         "filterList": "Mots filtrés",
-        "logFile": "Fichier journal",
         "logs": "Journaux",
         "metrics": "Statistiques",
         "playerControls": "Gestion des joueurs",
