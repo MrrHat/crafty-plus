@@ -108,7 +108,7 @@ class ApiServersServerLogsHandler(BaseApiHandler):
                             "error_data": "TRAVERSAL DETECTED",
                         },
                     )
-                raw_lines = self.helper.tail_files(log_paths, log_lines)
+                raw_lines = self.file_helper.tail_files(log_paths, log_lines)
             else:
                 raw_lines = self.helper.tail_file(active_log_path, log_lines)
 
@@ -168,10 +168,10 @@ class ApiServersServerLogFilesHandler(ApiServersServerLogsHandler):
             pathlib.Path(server_data["path"], server_data["log_path"])
         )
 
-        files = self.helper.list_log_files(active_log_path.parent)
+        files = self.file_helper.list_log_files(active_log_path.parent)
         for entry in files:
             entry["active"] = entry["name"] == active_log_path.name
 
-        groups = self.helper.group_log_files_by_date(files)
+        groups = self.file_helper.group_log_files_by_date(files)
 
         self.finish_json(200, {"status": "ok", "data": groups})

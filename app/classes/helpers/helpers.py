@@ -940,83 +940,6 @@ class Helpers:
         return pathlib.Path(max(matches, key=os.path.getmtime))
 
     @staticmethod
-    def list_log_files(log_dir):
-        """List the log files (current and rotated/archived) in a server's log
-        directory, e.g. Minecraft's Log4j2 ``YYYY-MM-DD-N.log.gz`` archives.
-
-        :param log_dir: Directory to scan - the parent of the currently active
-            log file, as resolved by :func:`resolve_log_path`.
-        :return: A list of dicts with ``name``, ``modified`` (epoch) and
-            ``size`` (bytes), newest first. Empty list if the directory
-            doesn't exist.
-        """
-        log_dir = pathlib.Path(log_dir)
-        if not log_dir.is_dir():
-            return []
-
-        files = []
-        for entry in log_dir.iterdir():
-            if not entry.is_file():
-                continue
-            if entry.suffix not in (".log", ".gz"):
-                continue
-            stat = entry.stat()
-            files.append(
-                {
-                    "name": entry.name,
-                    "modified": stat.st_mtime,
-                    "size": stat.st_size,
-                }
-            )
-
-        files.sort(key=lambda item: item["modified"], reverse=True)
-        return files
-
-    @staticmethod
-    def group_log_files_by_date(files):
-        """Group log files (as returned by :func:`list_log_files`) by the
-        calendar date in their filename, so a day with several rotations
-        (e.g. Log4j2's ``2026-09-04-1.log.gz``, ``2026-09-04-2.log.gz``) can
-        be viewed as a single combined log instead of opened one by one.
-
-        :param files: list of dicts as returned by :func:`list_log_files`,
-            each with an additional ``active`` bool set by the caller.
-        :return: list of dicts with ``date``, ``files`` (names, oldest
-            first), ``size`` (summed bytes), ``modified`` (newest mtime in
-            the group) and ``active``, sorted newest date first.
-        """
-        date_pattern = re.compile(r"^(\d{4}-\d{2}-\d{2})")
-
-        groups = {}
-        for entry in files:
-            match = date_pattern.match(entry["name"])
-            # Files with no date in their name (e.g. the active log) fall
-            # back to their own mtime so they still get a sensible group.
-            date = (
-                match.group(1)
-                if match
-                else datetime.fromtimestamp(entry["modified"]).strftime("%Y-%m-%d")
-            )
-            group = groups.setdefault(
-                date,
-                {"date": date, "files": [], "size": 0, "modified": 0, "active": False},
-            )
-            group["files"].append(entry)
-            group["size"] += entry["size"]
-            group["modified"] = max(group["modified"], entry["modified"])
-            group["active"] = group["active"] or entry["active"]
-
-        result = list(groups.values())
-        for group in result:
-            # Oldest first, so reading the group's files in order reconstructs
-            # the day's timeline.
-            group["files"].sort(key=lambda entry: entry["modified"])
-            group["files"] = [entry["name"] for entry in group["files"]]
-
-        result.sort(key=lambda group: group["modified"], reverse=True)
-        return result
-
-    @staticmethod
     def tail_file(file_name, number_lines=20):
         if not Helpers.check_file_exists(file_name):
             logger.warning(f"Unable to find file to tail: {file_name}")
@@ -1063,29 +986,6 @@ class Helpers:
 
         # now we are done getting the lines, let's return it
         return lines
-
-    @staticmethod
-    def tail_files(file_names, number_lines=20):
-        """Tail the combined content of multiple log files, e.g. every
-        rotation from one calendar day, concatenated oldest-to-newest by
-        modification time so a multi-file day reads as one continuous log.
-
-        :param file_names: paths to concatenate, in any order.
-        :param number_lines: max lines to return, taken from the end of the
-            combined content.
-        """
-        existing = [f for f in file_names if Helpers.check_file_exists(f)]
-        if not existing:
-            logger.warning(f"Unable to find file(s) to tail: {file_names}")
-            return [f"Unable to find file(s) to tail: {file_names}"]
-
-        existing.sort(key=os.path.getmtime)
-
-        all_lines = []
-        for file_name in existing:
-            all_lines.extend(Helpers.tail_file(file_name, number_lines))
-
-        return all_lines[-number_lines:]
 
     @staticmethod
     def check_writeable(path: str):
