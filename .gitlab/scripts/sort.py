@@ -33,7 +33,8 @@ def main():
 
     if not os.path.isfile(en_en_path):
         print(
-            f"The file en_EN.json does not exist in {dir_path}. Ensure you have the right directory, Exiting."
+            f"The file en_EN.json does not exist in {dir_path}. "
+            "Ensure you have the right directory, Exiting."
         )
         return
 

@@ -189,7 +189,8 @@ class ApiAuthLoginHandler(BaseApiHandler):
         # If passkeys are globally disabled, allow password login to prevent lockout.
         if user_data.disable_password_auth and self.controller.passkey.is_enabled():
             auth_log.error(
-                f"Password login attempted for {username} but password auth is disabled."
+                f"Password login attempted for {username} but password auth is"
+                " disabled."
                 f" Remote IP: {self.get_remote_ip()}"
             )
             self.finish_json(
