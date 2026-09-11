@@ -196,6 +196,7 @@ config_json_schema = {
             "type": "array",
             "items": {"type": "string"},
             "error": "typeList",
+        },
         "max_image_upload_size_mb": {
             "type": "integer",
             "minimum": 1,
