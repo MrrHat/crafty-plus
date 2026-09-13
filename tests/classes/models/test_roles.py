@@ -10,8 +10,10 @@ def test_update_role_sets_last_update_in_sqlite_without_format_change() -> None:
     db = SqliteDatabase(":memory:")
 
     # Connect to db
-    with db.bind_ctx([Roles]):
-        db.connect()
+    # Only bind the model under test; related models keep their application proxy.
+    with db.bind_ctx(
+        [Roles], bind_refs=False, bind_backrefs=False
+    ), db.connection_context():
         db.create_tables([Roles])
 
         # Insert known role.
@@ -42,5 +44,3 @@ def test_update_role_sets_last_update_in_sqlite_without_format_change() -> None:
         assert role.last_update[2] == "/"
         assert role.last_update[5] == "/"
         assert role.last_update[10:12] == ", "
-
-        db.close()
