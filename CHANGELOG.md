@@ -4,6 +4,7 @@
 - Add OpenGraph social media previews/embeds link customization ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1029))
 - Custom Branding and "Customize Crafty" page redesign ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1037))
 - Resolve glob patterns in logfile paths for Hytale logs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1039))
+- Add historical/rotated log viewing to the Logs tab ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1085))
 - Automatically grab latest server term when tab wakes up ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1089))
 ### Bug fixes
 - Fix all-numeric usernames rejected as invalid JSON schema ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/994))
