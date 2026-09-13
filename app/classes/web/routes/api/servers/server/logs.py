@@ -2,6 +2,7 @@ import html
 import logging
 import pathlib
 import re
+from app.classes.helpers.helpers import Helpers
 from app.classes.models.server_permissions import EnumPermissionsServer
 from app.classes.shared.server import ServerOutBuf
 from app.classes.web.base_api_handler import BaseApiHandler
@@ -54,6 +55,13 @@ class ApiServersServerLogsHandler(BaseApiHandler):
         disable_ansi_strip = self.get_query_argument("raw", None) == "true"
         # GET /api/v2/servers/server/logs?html=true
         use_html = self.get_query_argument("html", None) == "true"
+        # GET /api/v2/servers/server/logs?file=true&log_file=2026-03-05-1.log.gz
+        # GET /api/v2/servers/server/logs?file=true&log_file=a.log.gz,b.log.gz
+        # Selects one or more specific (typically rotated/archived) log files
+        # instead of the server's currently active log - e.g. every rotation
+        # from one day, so they can be viewed combined. Ignored unless
+        # file=true.
+        requested_log_file = self.get_query_argument("log_file", None)
 
         if not self.validate_read_perms(auth_data, server_id, read_log_file):
             return self.finish_json(
@@ -70,16 +78,39 @@ class ApiServersServerLogsHandler(BaseApiHandler):
 
         if read_log_file:
             log_lines = self.helper.get_setting("max_log_lines")
-            raw_lines = self.helper.tail_file(
-                # If the log path is absolute it returns it as is
-                # If it is relative it joins the paths below like normal.
-                # resolve_log_path expands a glob (e.g. Hytale's per-boot files)
-                # to the newest matching file; a literal path is returned as-is.
-                self.helper.resolve_log_path(
-                    pathlib.Path(server_data["path"], server_data["log_path"])
-                ),
-                log_lines,
+            # If the log path is absolute it returns it as is
+            # If it is relative it joins the paths below like normal.
+            # resolve_log_path expands a glob (e.g. Hytale's per-boot files)
+            # to the newest matching file; a literal path is returned as-is.
+            active_log_path = self.helper.resolve_log_path(
+                pathlib.Path(server_data["path"], server_data["log_path"])
             )
+
+            if requested_log_file:
+                # One or more specific (usually older/rotated) log files were
+                # requested - confine each to the active log's directory.
+                requested_names = [
+                    name.strip()
+                    for name in requested_log_file.split(",")
+                    if name.strip()
+                ]
+                try:
+                    log_paths = [
+                        Helpers.validate_traversal(active_log_path.parent, name)
+                        for name in requested_names
+                    ]
+                except ValueError:
+                    return self.finish_json(
+                        403,
+                        {
+                            "status": "error",
+                            "error": "TRAVERSAL DETECTED",
+                            "error_data": "TRAVERSAL DETECTED",
+                        },
+                    )
+                raw_lines = self.file_helper.tail_files(log_paths, log_lines)
+            else:
+                raw_lines = self.helper.tail_file(active_log_path, log_lines)
 
             # Remove newline characters from the end of the lines
             raw_lines = [line.rstrip("\r\n") for line in raw_lines]
@@ -107,3 +138,40 @@ class ApiServersServerLogsHandler(BaseApiHandler):
                 line = f"{line}<br />"
 
         self.finish_json(200, {"status": "ok", "data": lines})
+
+
+class ApiServersServerLogFilesHandler(ApiServersServerLogsHandler):
+    """Lists the log files (current + rotated/archived) available for a
+    server, grouped by calendar date so a day with several rotations can be
+    offered - and later read - as a single combined log."""
+
+    def get(self, server_id: str):
+        auth_data = self.authenticate_user()
+        if not auth_data:
+            return
+
+        # Listing log files requires the same LOGS permission as reading one.
+        if not self.validate_read_perms(auth_data, server_id, True):
+            return self.finish_json(
+                400,
+                {
+                    "status": "error",
+                    "error": "NOT_AUTHORIZED",
+                    "error_data": self.helper.translation.translate(
+                        "validators", "insufficientPerms", auth_data[4]["lang"]
+                    ),
+                },
+            )
+
+        server_data = self.controller.servers.get_server_data_by_id(server_id)
+        active_log_path = self.helper.resolve_log_path(
+            pathlib.Path(server_data["path"], server_data["log_path"])
+        )
+
+        files = self.file_helper.list_log_files(active_log_path.parent)
+        for entry in files:
+            entry["active"] = entry["name"] == active_log_path.name
+
+        groups = self.file_helper.group_log_files_by_date(files)
+
+        self.finish_json(200, {"status": "ok", "data": groups})

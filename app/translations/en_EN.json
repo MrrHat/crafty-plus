@@ -586,6 +586,7 @@
         "files": "Files",
         "filter": "Filter Logs",
         "filterList": "Filtered Words",
+        "logFile": "Log File",
         "logs": "Logs",
         "metrics": "Metrics",
         "playerControls": "Player Management",

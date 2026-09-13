@@ -25,7 +25,10 @@ from app.classes.web.routes.api.servers.server.index import (
     ApiServersServerIndexHandler,
     ApiServersServerUpdateConfig,
 )
-from app.classes.web.routes.api.servers.server.logs import ApiServersServerLogsHandler
+from app.classes.web.routes.api.servers.server.logs import (
+    ApiServersServerLogFilesHandler,
+    ApiServersServerLogsHandler,
+)
 from app.classes.web.routes.api.servers.server.public import (
     ApiServersServerPublicHandler,
 )
@@ -501,6 +504,11 @@ def api_handlers(handler_args):
         (
             r"/api/v2/servers/([a-z0-9-]+)/logs/?",
             ApiServersServerLogsHandler,
+            handler_args,
+        ),
+        (
+            r"/api/v2/servers/([a-z0-9-]+)/logs/files/?",
+            ApiServersServerLogFilesHandler,
             handler_args,
         ),
         (

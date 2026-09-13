@@ -2,6 +2,7 @@ import base64
 import contextlib
 import ctypes
 import glob
+import gzip
 import html
 import itertools
 import json
@@ -945,6 +946,18 @@ class Helpers:
         if not Helpers.check_file_exists(file_name):
             logger.warning(f"Unable to find file to tail: {file_name}")
             return [f"Unable to find file to tail: {file_name}"]
+
+        if str(file_name).endswith(".gz"):
+            # Gzip archives can't be seeked into by byte offset like a plain
+            # text file, so decompress fully and keep only the last N lines.
+            try:
+                with gzip.open(file_name, "rt", encoding="utf-8") as f:
+                    return f.readlines()[-number_lines:]
+            except OSError as e:
+                logger.warning(
+                    f"Unable to read gzip file:{file_name} - due to error: {e}"
+                )
+                return [f"Unable to read gzip file: {file_name}"]
 
         # length of lines is X char here
         avg_line_length = 255
