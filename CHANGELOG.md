@@ -10,7 +10,7 @@
 - Fix config.json self delete flag not working ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1086))
 - Fix intermittent bug where users see first run message multiple times ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1087))
 ### Tweaks
-TBD
+- Add compatability for OTP on bitwarden ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1088))
 <br><br>
 
 ## --- [4.10.8] - 2026/07/26
