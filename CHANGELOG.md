@@ -8,6 +8,7 @@
 - Fix all-numeric usernames rejected as invalid JSON schema ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/994))
 - Remove update center listing from those who do not have access ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1084))
 - Fix config.json self delete flag not working ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1086))
+- Fix intermittent bug where users see first run message multiple times ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1087))
 ### Tweaks
 TBD
 <br><br>
