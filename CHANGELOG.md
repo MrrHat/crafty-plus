@@ -16,6 +16,7 @@
 - Add compatability for OTP on bitwarden ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1088))
 - Update stale tests to match current crafty behaviour ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1091))
 - Remove unused package dependencies ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1090))
+- Add a ban reason prompt ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1083))
 <br><br>
 
 ## --- [4.10.8] - 2026/07/26
