@@ -1,6 +1,7 @@
 import json
 import logging
 import asyncio
+import ipaddress
 from urllib.parse import parse_qsl
 import tornado.websocket
 
@@ -34,13 +35,37 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         self.file_helper = file_helper
         self.io_loop = tornado.ioloop.IOLoop.current()
 
-    def get_remote_ip(self):
-        remote_ip = (
-            self.request.headers.get("X-Real-IP")
-            or self.request.headers.get("X-Forwarded-For")
-            or self.request.remote_ip
-        )
-        return remote_ip
+    def get_remote_ip(self) -> str:
+        """Returns IP address of the remote request or headers. Validates header are
+        coming from trusted proxies set in the config.json file. Ensures address
+        is a valid IPv4 or v6 address
+
+        Returns:
+            str: IPv4 or IPv6 address of remote request.
+        """
+        trusted = list(self.helper.get_setting("trusted_proxies")) or []
+        remote_ip = None
+        header_ip = None
+
+        if (
+            not trusted or self.request.remote_ip in trusted
+        ):  # Allow any headers if trusted is empty
+            # for backward compatability.
+            # Extract header value, taking first IP if X-Forwarded-For is a chain
+            raw_header = (
+                self.request.headers.get("X-Real-IP")
+                or self.request.headers.get("X-Forwarded-For")
+                or self.request.remote_ip
+            )
+            if raw_header:
+                header_ip = raw_header.split(",")[0].strip()
+        else:
+            # If proxy address is not in trusted we'll just ignore the headers
+            remote_ip = self.request.remote_ip
+        try:
+            return str(ipaddress.ip_address((remote_ip or header_ip)))
+        except ValueError:
+            return "0.0.0.0"
 
     # pylint: disable=arguments-differ
     def open(self):

@@ -46,7 +46,7 @@
               <tbody>
                 <tr>
                   <td colspan="5" id="image-div" class="text-center"> <!-- Center image within table -->
-                    <img class="img-center" id="logo-animate" src="../static/assets/images/crafty-logo-square-1024.png"
+                    <img class="img-center" id="logo-animate" src="{{ data['brand']['square'] }}"
                       alt="Crafty Logo, Crafty is loading" width="20%"><br><br>{{ translate('datatables',
                     'loadingRecords', data['lang'])}}
                   </td>
@@ -98,24 +98,44 @@
   function updateActivity(data) {
     let tbody = $('#audit_table tbody');
     tbody.empty(); // Clear existing rows
+
     $.each(data, function (index, value) {
       let row = $('<tr>');
-      row.append(`<td>${value.time}</td>`);
-      if (value.user_name != "system" && value.user_id != "-1") {
-        row.append(`<td><a href="/panel/edit_user?id=${value.user_id}">${value.user_name}</a></td>`);
+
+      // Time
+      row.append($('<td>').text(value.time));
+
+      // User Name / Link
+      let $userCell = $('<td>');
+      if (value.user_name !== "system" && value.user_id !== "-1") {
+        let safeId = encodeURIComponent(value.user_id);
+        $('<a>')
+          .attr('href', `/panel/edit_user?id=${safeId}`)
+          .text(value.user_name)
+          .appendTo($userCell);
       } else {
-        row.append(`<td>${value.user_name}</td>`);
+        $userCell.text(value.user_name);
       }
-      row.append(`<td>${value.log_msg}</td>`);
-      row.append(`<td>${value.server_id}</td>`);
-      row.append(`<td>${value.source_ip}</td>`);
+      row.append($userCell);
+
+      // Log Message
+      row.append($('<td>').text(value.log_msg));
+
+      // Server ID
+      row.append($('<td>').text(value.server_id));
+
+      // Source IP
+      row.append($('<td>').text(value.source_ip));
+
       tbody.append(row);
     });
+
+    // Re-initialize DataTable
     $('#audit_table').DataTable({
-      'order': [[0, 'desc']], // Sort by the first column in descending order
-      filter: true,
-      "searching": true,
-    })
+      'order': [[0, 'desc']],
+      'filter': true,
+      'searching': true
+    });
   }
 
   async function getActivity() {
@@ -127,7 +147,6 @@
       },
     });
     let responseData = await res.json();
-    console.log(responseData);
     if (responseData.status === "ok") {
       updateActivity(responseData.data);
       console.log("activity update")

@@ -12,6 +12,11 @@ class DefaultHandler(BaseHandler):
             self.set_status(404)
             self.render(
                 "public/404.html",
+                data={
+                    "background": self.controller.cached_login,
+                    "brand": self.controller.cached_brand,
+                    "lang": self.helper.get_setting("language"),
+                },
                 translate=self.translator.translate,
             )
         else:

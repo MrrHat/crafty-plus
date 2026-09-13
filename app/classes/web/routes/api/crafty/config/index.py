@@ -192,6 +192,17 @@ config_json_schema = {
             "error": "typeInteger",
             "fill": True,
         },
+        "trusted_proxies": {
+            "type": "array",
+            "items": {"type": "string"},
+            "error": "typeList",
+        },
+        "max_image_upload_size_mb": {
+            "type": "integer",
+            "minimum": 1,
+            "error": "typeInteger",
+            "fill": True,
+        },
     },
     "additionalProperties": False,
     "minProperties": 1,
@@ -222,6 +233,35 @@ photo_delete_schema = {
             "error": "typeString",
             "fill": True,
         },
+    },
+    "additionalProperties": False,
+    "minProperties": 1,
+}
+embed_json_schema = {
+    "type": "object",
+    "properties": {
+        "og_enabled": {"type": "boolean", "error": "typeBool"},
+        "og_title": {"type": "string", "error": "typeString"},
+        "og_description": {"type": "string", "error": "typeString"},
+        "og_image": {"type": "string", "error": "typeString"},
+        "og_color": {"type": "string", "error": "typeString"},
+    },
+    "additionalProperties": False,
+    "minProperties": 1,
+}
+embed_delete_schema = {
+    "type": "object",
+    "properties": {
+        "og_image": {"type": "string", "error": "typeString"},
+    },
+    "required": ["og_image"],
+    "additionalProperties": False,
+}
+logos_json_schema = {
+    "type": "object",
+    "properties": {
+        "logo_full": {"type": "string", "error": "typeString"},
+        "logo_square": {"type": "string", "error": "typeString"},
     },
     "additionalProperties": False,
     "minProperties": 1,
@@ -540,4 +580,148 @@ class ApiCraftyCustomizeIndexHandler(BaseApiHandler):
         if current_photo == data["photo"]:
             self.controller.management.set_login_image(DEFAULT_PHOTO)
             self.controller.cached_login = DEFAULT_PHOTO
+        return self.finish_json(200, {"status": "ok"})
+
+
+class ApiCraftyEmbedIndexHandler(BaseApiHandler):
+    def patch(self):
+        auth_data = self.authenticate_user()
+        if not auth_data:
+            return
+        if not self.require_superuser(auth_data):
+            return
+        data = self.load_and_validate(embed_json_schema)
+        if data is None:
+            return
+
+        self.controller.management.set_embed_settings(data)
+        self.controller.management.add_to_audit_log(
+            auth_data[4]["user_id"],
+            "updated discord embed settings",
+            server_id=None,
+            source_ip=self.get_remote_ip(),
+        )
+        return self.finish_json(200, {"status": "ok", "data": data})
+
+    def delete(self):
+        """Delete an uploaded embed image, clearing it if currently selected."""
+        auth_data = self.authenticate_user()
+        if not auth_data:
+            return
+        if not self.require_superuser(auth_data):
+            return
+        data = self.load_and_validate(embed_delete_schema)
+        if data is None:
+            return
+
+        filename = data["og_image"]
+        if not filename:
+            return self.finish_json(
+                400,
+                {
+                    "status": "error",
+                    "error": "INVALID FILE",
+                    "error_data": "NO FILE SPECIFIED",
+                },
+            )
+
+        folder = "app/frontend/static/assets/images/embed"
+        if not self.reject_traversal(
+            os.path.join(self.controller.project_root, folder),
+            os.path.join(self.controller.project_root, folder, filename),
+        ):
+            return
+
+        FileHelpers.del_file(
+            os.path.join(self.controller.project_root, folder, filename)
+        )
+        if self.controller.management.get_embed_settings()["image"] == filename:
+            self.controller.management.set_embed_settings({"og_image": ""})
+        self.controller.management.add_to_audit_log(
+            auth_data[4]["user_id"],
+            f"deleted embed image: {filename}",
+            server_id=None,
+            source_ip=self.get_remote_ip(),
+        )
+        return self.finish_json(200, {"status": "ok"})
+
+
+class ApiCraftyLogosIndexHandler(BaseApiHandler):
+    """PATCH endpoint for selecting custom site logos (superuser only)."""
+
+    def patch(self):
+        auth_data = self.authenticate_user()
+        if not auth_data:
+            return
+        if not self.require_superuser(auth_data):
+            return
+        data = self.load_and_validate(logos_json_schema)
+        if data is None:
+            return
+
+        # Reject path traversal for any non-empty filename.
+        folders = {
+            "logo_full": "app/frontend/static/assets/images/logos/full",
+            "logo_square": "app/frontend/static/assets/images/logos/square",
+        }
+        for key, folder in folders.items():
+            filename = data.get(key)
+            if not filename:
+                continue
+            if not self.reject_traversal(
+                os.path.join(self.controller.project_root, folder),
+                os.path.join(self.controller.project_root, folder, filename),
+            ):
+                return
+
+        self.controller.management.set_brand_settings(data)
+        self.controller.refresh_brand_cache()
+        self.controller.management.add_to_audit_log(
+            auth_data[4]["user_id"],
+            "updated site logos",
+            server_id=None,
+            source_ip=self.get_remote_ip(),
+        )
+        return self.finish_json(200, {"status": "ok", "data": data})
+
+    def delete(self):
+        """Delete an uploaded logo file, clearing it if currently selected."""
+        auth_data = self.authenticate_user()
+        if not auth_data:
+            return
+        if not self.require_superuser(auth_data):
+            return
+        data = self.load_and_validate(logos_json_schema)
+        if data is None:
+            return
+
+        folders = {
+            "logo_full": "app/frontend/static/assets/images/logos/full",
+            "logo_square": "app/frontend/static/assets/images/logos/square",
+        }
+        current = self.controller.management.get_brand_settings()
+        # Map the request key (logo_full/logo_square) to its brand column (full/square)
+        kinds = {"logo_full": "full", "logo_square": "square"}
+        for key, folder in folders.items():
+            filename = data.get(key)
+            if not filename:
+                continue
+            if not self.reject_traversal(
+                os.path.join(self.controller.project_root, folder),
+                os.path.join(self.controller.project_root, folder, filename),
+            ):
+                return
+            FileHelpers.del_file(
+                os.path.join(self.controller.project_root, folder, filename)
+            )
+            if current[kinds[key]] == filename:
+                self.controller.management.set_brand_settings({key: ""})
+
+        self.controller.refresh_brand_cache()
+        self.controller.management.add_to_audit_log(
+            auth_data[4]["user_id"],
+            "deleted site logo",
+            server_id=None,
+            source_ip=self.get_remote_ip(),
+        )
         return self.finish_json(200, {"status": "ok"})

@@ -67,13 +67,26 @@
     return r ? r[1] : undefined;
   }
 
-  function ban_kick(action, player) {
-    send_command_to_server(`${action} ${player}`);
-    // Optimistically reflect a ban in the banned list for instant feedback;
-    // the next page load reconciles against the server's banned-players.json.
-    if (action === 'ban') {
-      add_banned_row(player, '');
-    }
+  function ban_kick_with_reason(action, player) {
+    bootbox.prompt({
+      title: "{{ translate('serverPlayerManagement', 'reasonPrompt', data['lang']) }}",
+      callback: function (reason) {
+        if (reason === null) {
+          // Dialog cancelled — take no action.
+          return;
+        }
+        // Strip newlines so a reason can't inject a second console command,
+        // then trim surrounding whitespace.
+        reason = reason.replace(/[\r\n]+/g, ' ').trim();
+        const command = reason ? `${action} ${player} ${reason}` : `${action} ${player}`;
+        send_command_to_server(command);
+        // Optimistically reflect a ban in the banned list for instant feedback;
+        // the next page load reconciles against the server's banned-players.json.
+        if (action === 'ban') {
+          add_banned_row(player, reason);
+        }
+      }
+    });
   }
 
   // Unban a player and optimistically drop them from the banned list so the UI

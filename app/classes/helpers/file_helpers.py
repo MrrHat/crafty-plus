@@ -3,6 +3,7 @@ import logging
 import mimetypes
 import os
 import pathlib
+import re
 import shutil
 import ssl
 import time
@@ -149,6 +150,16 @@ class FileHelpers:
         # Check the leading byte. Not sure what for exactly. Original behavior returned
         # false if the byte was in the chunk, true if it was not.
         return b"\x00" not in chunk
+
+    def write_text_file(self, path: Path, text: str):
+        """Creates a text file at the path with the text
+
+        Args:
+            path (Path): Path for the file
+            text (str): Text for the file
+        """
+        with open(path, "w", encoding="utf-8") as target:
+            target.write(text)
 
     def probably_can_open_file(self, path: str) -> tuple:
         """
@@ -1028,6 +1039,127 @@ class FileHelpers:
             if p not in excluded_files and p.parents not in excluded_dirs:
                 discovered_files.append(p)
         return discovered_files
+
+    @staticmethod
+    def list_log_files(log_dir: Path) -> list[dict]:
+        """
+        List the log files in a server's log directory.
+
+        Covers the current log as well as rotated/archived ones, e.g.
+        Minecraft's Log4j2 ``YYYY-MM-DD-N.log.gz`` archives.
+
+        Args:
+            log_dir: Directory to scan - the parent of the currently active
+                log file, as resolved by Helpers.resolve_log_path.
+
+        Returns: A list of dicts with ``name``, ``modified`` (epoch) and
+            ``size`` (bytes), newest first. Empty list if the directory
+            doesn't exist.
+
+        """
+        log_dir = Path(log_dir)
+        if not log_dir.is_dir():
+            return []
+
+        files = []
+        for entry in log_dir.iterdir():
+            if not entry.is_file():
+                continue
+            if entry.suffix not in (".log", ".gz"):
+                continue
+            stat = entry.stat()
+            files.append(
+                {
+                    "name": entry.name,
+                    "modified": stat.st_mtime,
+                    "size": stat.st_size,
+                }
+            )
+
+        files.sort(key=lambda item: item["modified"], reverse=True)
+        return files
+
+    @staticmethod
+    def group_log_files_by_date(files: list[dict]) -> list[dict]:
+        """
+        Group log files by the calendar date in their filename.
+
+        Takes the output of list_log_files and groups it so a day with
+        several rotations (e.g. Log4j2's ``2026-09-04-1.log.gz``,
+        ``2026-09-04-2.log.gz``) can be viewed as a single combined log
+        instead of opened one by one.
+
+        Args:
+            files: list of dicts as returned by list_log_files, each with
+                an additional ``active`` bool set by the caller.
+
+        Returns: list of dicts with ``date``, ``files`` (names, oldest
+            first), ``size`` (summed bytes), ``modified`` (newest mtime in
+            the group) and ``active``, sorted newest date first.
+
+        """
+        date_pattern = re.compile(r"^(\d{4}-\d{2}-\d{2})")
+
+        groups = {}
+        for entry in files:
+            match = date_pattern.match(entry["name"])
+            # Files with no date in their name (e.g. the active log) fall
+            # back to their own mtime so they still get a sensible group.
+            date = (
+                match.group(1)
+                if match
+                else datetime.datetime.fromtimestamp(entry["modified"]).strftime(
+                    "%Y-%m-%d"
+                )
+            )
+            group = groups.setdefault(
+                date,
+                {"date": date, "files": [], "size": 0, "modified": 0, "active": False},
+            )
+            group["files"].append(entry)
+            group["size"] += entry["size"]
+            group["modified"] = max(group["modified"], entry["modified"])
+            group["active"] = group["active"] or entry["active"]
+
+        result = list(groups.values())
+        for group in result:
+            # Oldest first, so reading the group's files in order reconstructs
+            # the day's timeline.
+            group["files"].sort(key=lambda entry: entry["modified"])
+            group["files"] = [entry["name"] for entry in group["files"]]
+
+        result.sort(key=lambda group: group["modified"], reverse=True)
+        return result
+
+    @staticmethod
+    def tail_files(file_names: list, number_lines: int = 20) -> list[str]:
+        """
+        Tail the combined content of multiple log files.
+
+        Used for e.g. every rotation from one calendar day, concatenated
+        oldest-to-newest by modification time so a multi-file day reads as
+        one continuous log.
+
+        Args:
+            file_names: paths to concatenate, in any order.
+            number_lines: max lines to return, taken from the end of the
+                combined content.
+
+        Returns: The last ``number_lines`` lines of the combined content.
+
+        """
+        existing = [f for f in file_names if Helpers.check_file_exists(f)]
+        if not existing:
+            logger.warning(f"Unable to find file(s) to tail: {file_names}")
+            return [f"Unable to find file(s) to tail: {file_names}"]
+
+        existing.sort(key=os.path.getmtime)
+
+        all_lines = []
+        for file_name in existing:
+            all_lines.extend(Helpers.tail_file(file_name, number_lines))
+
+        return all_lines[-number_lines:]
 
     def clean_old_backups(self, num_to_keep: int, backup_repository_path: Path) -> None:
         """

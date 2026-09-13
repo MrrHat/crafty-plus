@@ -25,7 +25,10 @@ from app.classes.web.routes.api.servers.server.index import (
     ApiServersServerIndexHandler,
     ApiServersServerUpdateConfig,
 )
-from app.classes.web.routes.api.servers.server.logs import ApiServersServerLogsHandler
+from app.classes.web.routes.api.servers.server.logs import (
+    ApiServersServerLogFilesHandler,
+    ApiServersServerLogsHandler,
+)
 from app.classes.web.routes.api.servers.server.public import (
     ApiServersServerPublicHandler,
 )
@@ -100,6 +103,8 @@ from app.classes.web.routes.api.crafty.check import ApiCraftyCheck
 from app.classes.web.routes.api.crafty.config.index import (
     ApiCraftyConfigIndexHandler,
     ApiCraftyCustomizeIndexHandler,
+    ApiCraftyEmbedIndexHandler,
+    ApiCraftyLogosIndexHandler,
 )
 from app.classes.web.routes.api.crafty.config.server_dir import (
     ApiCraftyConfigServerDirHandler,
@@ -109,7 +114,12 @@ from app.classes.web.routes.api.crafty.clogs.index import ApiCraftyLogIndexHandl
 from app.classes.web.routes.api.crafty.clogs.support import ApiCraftySupportIndexHandler
 from app.classes.web.routes.api.crafty.imports.index import ApiImportFilesIndexHandler
 from app.classes.web.routes.api.crafty.imports.upload import APIServerImportUpload
-from app.classes.web.routes.api.crafty.config.upload import APICraftyCustomizeUpload
+from app.classes.web.routes.api.crafty.config.upload import (
+    APICraftyCustomizeUpload,
+    APICraftyEmbedUpload,
+    APICraftyLogoFullUpload,
+    APICraftyLogoSquareUpload,
+)
 from app.classes.web.routes.api.crafty.exe_cache import (
     ApiCraftyJarCacheIndexHandler,
     ApiCraftySteamCacheIndexHandler,
@@ -166,6 +176,16 @@ def api_handlers(handler_args):
         (
             r"/api/v2/crafty/config/customize/?",
             ApiCraftyCustomizeIndexHandler,
+            handler_args,
+        ),
+        (
+            r"/api/v2/crafty/config/embed/?",
+            ApiCraftyEmbedIndexHandler,
+            handler_args,
+        ),
+        (
+            r"/api/v2/crafty/config/logos/?",
+            ApiCraftyLogosIndexHandler,
             handler_args,
         ),
         (
@@ -386,6 +406,21 @@ def api_handlers(handler_args):
             handler_args,
         ),
         (
+            r"/api/v2/crafty/admin/upload/embed/?",
+            APICraftyEmbedUpload,
+            handler_args,
+        ),
+        (
+            r"/api/v2/crafty/admin/upload/logo_full/?",
+            APICraftyLogoFullUpload,
+            handler_args,
+        ),
+        (
+            r"/api/v2/crafty/admin/upload/logo_square/?",
+            APICraftyLogoSquareUpload,
+            handler_args,
+        ),
+        (
             r"/api/v2/crafty/admin/upload/?",
             APICraftyCustomizeUpload,
             handler_args,
@@ -469,6 +504,11 @@ def api_handlers(handler_args):
         (
             r"/api/v2/servers/([a-z0-9-]+)/logs/?",
             ApiServersServerLogsHandler,
+            handler_args,
+        ),
+        (
+            r"/api/v2/servers/([a-z0-9-]+)/logs/files/?",
+            ApiServersServerLogFilesHandler,
             handler_args,
         ),
         (

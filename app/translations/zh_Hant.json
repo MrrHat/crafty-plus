@@ -73,7 +73,8 @@
         "virtual_terminal_lines": "伺服器終端機緩衝區允許保留的行數",
         "enable_passkey_auth": "啟用通行金鑰（WebAuthn）驗證",
         "passkey_rp_name": "通行金鑰信賴方名稱（顯示於驗證器提示中）",
-        "silent_notif_fields": "以靜默方式記錄變更的使用者欄位（不顯示通知快顯視窗）"
+        "silent_notif_fields": "以靜默方式記錄變更的使用者欄位（不顯示通知快顯視窗）",
+        "max_image_upload_size_mb": "面板圖片（例如標誌與背景）的上傳大小上限（MB）"
     },
     "credits": {
         "developmentTeam": "開發團隊",
@@ -97,7 +98,7 @@
     "customLogin": {
         "apply": "套用",
         "backgroundUpload": "上傳背景",
-        "customLoginPage": "自訂登入頁面",
+        "customLoginPage": "自訂外觀與品牌",
         "delete": "刪除",
         "labelLoginImage": "選擇登入背景",
         "loginBackground": "登入背景圖片",
@@ -106,7 +107,32 @@
         "pageTitle": "自訂登入頁面",
         "preview": "預覽",
         "select": "選擇",
-        "selectImage": "選擇圖片"
+        "selectImage": "選擇圖片",
+        "backgroundChooseExisting": "選擇現有項目",
+        "backgroundUploadNew": "上傳新背景圖片",
+        "changeApplied": "變更已套用",
+        "embedChooseExisting": "選擇現有",
+        "embedColorField": "強調色",
+        "embedDescriptionField": "嵌入訊息說明",
+        "embedEnabled": "嵌入訊息說明",
+        "embedHelp": "自訂面板連結分享到 Discord 及其他平台時的預覽外觀。",
+        "embedImageDefault": "預設（Crafty 標誌）",
+        "embedImageSelect": "嵌入圖片",
+        "embedImageUpload": "上傳嵌入圖片",
+        "embedTitle": "連結預覽",
+        "embedTitleField": "嵌入標題",
+        "embedUploadNew": "上傳新的",
+        "imageDeleted": "圖片已刪除",
+        "logoChooseExisting": "選擇現有",
+        "logoDefault": "預設（Crafty 標誌）",
+        "logoFull": "完整標誌（寬版）",
+        "logoSquare": "方形標誌（圖示）",
+        "logoUploadNew": "上傳新Logo",
+        "logosTitle": "為您的面板上傳自訂標誌。",
+        "nothingToDelete": "這是預設圖片，無法刪除。",
+        "recommendedSize": "建議尺寸：",
+        "unsavedChanges": "尚未套用。請按一下「套用」以儲存變更。",
+        "uploadImage": "上傳新的"
     },
     "dashboard": {
         "actions": "操作",
@@ -874,7 +900,9 @@
         "typeInteger": "必須是數字。",
         "typeList": "必須是清單／陣列類型 ",
         "typeString": "必須是字串類型。",
-        "userName": " 必須是字串、全部使用小寫，且長度介於 4 至 20 個字元之間"
+        "userName": " 必須是字串、全部使用小寫，且長度介於 4 至 20 個字元之間",
+        "imageTooLarge": "圖片太大。上傳大小上限為 {} MB。",
+        "invalidImageType": "檔案類型無效。請上傳圖片（PNG、JPG、GIF、WebP、BMP 或 TIFF）。"
     },
     "webhooks": {
         "areYouSureDel": "確定要刪除此 Webhook 嗎？",

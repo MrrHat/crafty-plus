@@ -40,6 +40,10 @@
           </span>
 
           <div class="col-md-12">
+            <div class="form-group">
+              <label for="log_file_select">{{ translate('serverDetails', 'logFile', data['lang']) }}</label>
+              <select class="form-control" id="log_file_select"></select>
+            </div>
             <div class="input-group">
               <div id="virt_console" class="virt_console">
               </div>
@@ -184,11 +188,15 @@
 
   // Populate logs and filter if present
   const serverId = new URLSearchParams(document.location.search).get('id')
-  async function get_server_log() {
+  async function get_server_log(logFile) {
     const token = getCookie("_xsrf")
     let colors = true;
     if (!$("#stop_scroll").is(':checked')) {
-      let res = await fetch(`/api/v2/servers/${serverId}/logs?colors=${colors}&file=true`, {
+      let url = `/api/v2/servers/${serverId}/logs?colors=${colors}&file=true`;
+      if (logFile) {
+        url += `&log_file=${encodeURIComponent(logFile)}`;
+      }
+      let res = await fetch(url, {
         method: 'GET',
         headers: {
           'X-XSRFToken': token
@@ -214,9 +222,49 @@
       }
     }
   }
+
+  // Populate the log file dropdown (live log + one entry per day of
+  // rotated/archived logs, combined if a day has more than one file) and
+  // reload the console with the selection on change.
+  function formatLogGroupOption(entry) {
+    const sizeKb = (entry.size / 1024).toFixed(1);
+    const countSuffix = entry.files.length > 1 ? ` — ${entry.files.length} files` : '';
+    const liveSuffix = entry.active ? ' (live)' : '';
+    return `${entry.date}${countSuffix} (${sizeKb} KB)${liveSuffix}`;
+  }
+
+  async function populate_log_files() {
+    const token = getCookie("_xsrf")
+    let res = await fetch(`/api/v2/servers/${serverId}/logs/files`, {
+      method: 'GET',
+      headers: {
+        'X-XSRFToken': token
+      },
+    });
+    let responseData = await res.json();
+    if (responseData.status !== "ok") return;
+
+    const select = document.getElementById('log_file_select');
+    select.innerHTML = '';
+    for (let entry of responseData.data) {
+      let option = document.createElement('option');
+      // Every rotation belonging to that day is requested explicitly, so
+      // they're read combined - even when the day also includes the
+      // still-growing live file.
+      option.value = entry.files.join(',');
+      option.textContent = formatLogGroupOption(entry);
+      select.appendChild(option);
+    }
+
+    select.addEventListener('change', () => {
+      get_server_log(select.value || undefined);
+    });
+  }
+
   $(document).ready(function () {
     console.log("ready!");
     get_server_log();
+    populate_log_files();
     populateWords();
   });
 </script>
