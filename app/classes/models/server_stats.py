@@ -54,7 +54,6 @@ class ServerStats(Model):
     version = CharField(default="")
     updating = BooleanField(default=False)
     waiting_start = BooleanField(default=False)
-    first_run = BooleanField(default=True)
     crashed = BooleanField(default=False)
     importing = BooleanField(default=False)
 
@@ -454,33 +453,6 @@ class HelperServerStats:
         )
         self.database.close()
         return update_status.updating
-
-    def set_first_run(self):
-        self.database.connect(reuse_if_open=True)
-        # Sets first run to false
-        try:
-            # Checks if server even exists
-            ServerStats.select().where(ServerStats.server_id == self.server_id).execute(
-                self.database
-            )
-        except Exception as ex:
-            logger.exception(f"Database entry not found! {ex}")
-            self.database.close()
-            return
-        ServerStats.update(first_run=False).where(
-            ServerStats.server_id == self.server_id
-        ).execute(self.database)
-        self.database.close()
-
-    def get_first_run(self):
-        self.database.connect(reuse_if_open=True)
-        first_run = (
-            ServerStats.select()
-            .where(ServerStats.server_id == self.server_id)
-            .get(self.database)
-        )
-        self.database.close()
-        return first_run.first_run
 
     def get_ttl_without_player(self):
         self.database.connect(reuse_if_open=True)

@@ -150,6 +150,16 @@ class FileHelpers:
         # false if the byte was in the chunk, true if it was not.
         return b"\x00" not in chunk
 
+    def write_text_file(self, path: Path, text: str):
+        """Creates a text file at the path with the text
+
+        Args:
+            path (Path): Path for the file
+            text (str): Text for the file
+        """
+        with open(path, "w", encoding="utf-8") as target:
+            target.write(text)
+
     def probably_can_open_file(self, path: str) -> tuple:
         """
         Check various file factors to assume it can be read by the text editor.
