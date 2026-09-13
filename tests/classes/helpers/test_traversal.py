@@ -34,7 +34,7 @@ def test_validate_traversal_rejects_absolute_path(tmp_path) -> None:
         Helpers.validate_traversal(base, bad_absolute)
 
 
-def test_unzip_file_strips_parent_segments(tmp_path, monkeypatch) -> None:
+def test_unzip_file_rejects_parent_segments(tmp_path, monkeypatch) -> None:
     archive_path = tmp_path / "archive.zip"
     destination = tmp_path / "dest"
 
@@ -42,7 +42,9 @@ def test_unzip_file_strips_parent_segments(tmp_path, monkeypatch) -> None:
         zip_ref.writestr("../outside.txt", "nope")
         zip_ref.writestr("dir/ok.txt", "ok")
 
-    file_helper = FileHelpers(None)
+    helper = Mock(spec=Helpers)
+    helper.validate_traversal = Helpers.validate_traversal
+    file_helper = FileHelpers(helper)
     monkeypatch.setattr(file_helper, "send_percentage", lambda *args, **kwargs: None)
 
     file_helper.unzip_file(
@@ -50,9 +52,27 @@ def test_unzip_file_strips_parent_segments(tmp_path, monkeypatch) -> None:
         str(destination),
         user_id=["test"],
     )
-    assert (destination / "outside.txt").exists()
-    assert (destination / "dir" / "ok.txt").exists()
+    assert not (destination / "outside.txt").exists()
+    # Extraction stops at the traversal entry, before the subsequent safe entry.
+    assert not (destination / "dir" / "ok.txt").exists()
     assert not (tmp_path / "outside.txt").exists()
+
+
+def test_unzip_file_extracts_safe_entries(tmp_path, monkeypatch) -> None:
+    archive_path = tmp_path / "archive.zip"
+    destination = tmp_path / "dest"
+    with zipfile.ZipFile(archive_path, "w") as zip_ref:
+        zip_ref.writestr("dir/", "")
+        zip_ref.writestr("dir/ok.txt", "ok")
+
+    helper = Mock(spec=Helpers)
+    helper.validate_traversal = Helpers.validate_traversal
+    file_helper = FileHelpers(helper)
+    monkeypatch.setattr(file_helper, "send_percentage", lambda *args, **kwargs: None)
+
+    file_helper.unzip_file(str(archive_path), str(destination), user_id=["test"])
+
+    assert (destination / "dir" / "ok.txt").read_text() == "ok"
 
 
 def test_import_scan_outside_zipfile(tmp_path) -> None:
