@@ -653,7 +653,8 @@
     "serverPlayerManagement": {
         "bannedPlayers": "Banned Players",
         "loadingBannedPlayers": "Loading Banned Players",
-        "players": "Players"
+        "players": "Players",
+        "reasonPrompt": "Reason (optional)"
     },
     "serverScheduleConfig": {
         "backup": "Backup Server",

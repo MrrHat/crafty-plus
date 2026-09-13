@@ -132,8 +132,8 @@
       if (running) {
         text += `<td class="col-3">
                     <div class="row">
-                      <div class="col"><button onclick="ban_kick('ban', '${players[i]['name']}')" type="button" class="btn btn-danger">Ban</button></div>
-                      <div class="col"><button onclick="ban_kick('kick', '${players[i]['name']}')" type="button" class="btn btn-outline-danger">Kick</button></div>`
+                      <div class="col"><button onclick="ban_kick_with_reason('ban', '${players[i]['name']}')" type="button" class="btn btn-danger">Ban</button></div>
+                      <div class="col"><button onclick="ban_kick_with_reason('kick', '${players[i]['name']}')" type="button" class="btn btn-outline-danger">Kick</button></div>`
         if (SERVER_TYPE === "hytale") {
           text += `<div class="col"><button onclick="send_command_to_server('op add ${players[i]['name']}')" type="button" class="btn btn-warning">OP Add</button></div>
                       <div class="col"><button onclick="send_command_to_server('op remove ${players[i]['name']}')" type="button" class="btn btn-outline-warning">OP Remove</button></div>`
