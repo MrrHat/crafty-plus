@@ -57,7 +57,7 @@
     "customLogin": {
         "apply": "应用",
         "backgroundUpload": "后台上传",
-        "customLoginPage": "自定义登录页面",
+        "customLoginPage": "外观与品牌",
         "delete": "删除",
         "labelLoginImage": "选择您的登录页面背景",
         "loginBackground": "登录页面背景图片",
@@ -66,7 +66,32 @@
         "pageTitle": "自定义登录页面",
         "preview": "预览",
         "select": "选择",
-        "selectImage": "选择一张图片"
+        "selectImage": "选择一张图片",
+        "backgroundChooseExisting": "选择现有",
+        "backgroundUploadNew": "上传新背景",
+        "changeApplied": "更改已应用",
+        "embedChooseExisting": "选择现有",
+        "embedColorField": "强调色",
+        "embedDescriptionField": "嵌入描述",
+        "embedEnabled": "启用嵌入",
+        "embedHelp": "自定义您的面板链接被分享至 Discord 和其他平台时的预览。",
+        "embedImageDefault": "默认（Crafty logo）",
+        "embedImageSelect": "嵌入图片",
+        "embedImageUpload": "上传嵌入图片",
+        "embedTitle": "链接预览",
+        "embedTitleField": "嵌入标题",
+        "embedUploadNew": "上传新的",
+        "logoChooseExisting": "选择现有",
+        "imageDeleted": "图片已删除",
+        "logoDefault": "默认（Crafty logo）",
+        "logoFull": "完整 logo（宽）",
+        "logoSquare": "方形 logo（图标）",
+        "logoUploadNew": "上传新 logo",
+        "logosTitle": "为您的面板上传自定义 logo。",
+        "nothingToDelete": "那是默认图片 — 无法删除。",
+        "recommendedSize": "推荐尺寸：",
+        "unsavedChanges": "尚未应用。点击应用以保存。",
+        "uploadImage": "上传新的"
     },
     "dashboard": {
         "actions": "操作",
@@ -759,7 +784,9 @@
         "additionalProperties": "不允许传递额外属性",
         "mfaName": "输入的属性必须为字符串类型，且最短为 3 个字符",
         "passProp": "密码必须为最短 8 个字符的字符串。",
-        "typeEpoch": "必须为一个 epoch 值"
+        "typeEpoch": "必须为一个 epoch 值",
+        "imageTooLarge": "图片过大。最大上传大小为 {} MB。",
+        "invalidImageType": "文件类型无效。请上传一张图片（PNG、JPG、GIF、WebP、BMP，或 TIFF）。"
     },
     "webhooks": {
         "areYouSureDel": "您确定要删除此 webhook 吗？",
@@ -851,7 +878,8 @@
         "sampling_fallback_divisor": "回落采样分母（用于超过最后一个等级的时间范围）",
         "enable_passkey_auth": "启用通行密钥（WebAuthn）认证",
         "passkey_rp_name": "通行密钥依赖方名称（显示于认证器请求中）",
-        "silent_notif_fields": "将更改静默写入日志的用户字段（无通知弹窗）"
+        "silent_notif_fields": "将更改静默写入日志的用户字段（无通知弹窗）",
+        "max_image_upload_size_mb": "面板图片上传（如 logo 和背景）的最大允许大小（MB）"
     },
     "serverFilesEditor": {
         "saved": "已保存",

@@ -692,8 +692,7 @@ class ServerInstance:
         )
         check_internet_thread.start()
         # Checks if this is the servers first run.
-        if self.stats_helper.get_first_run():
-            self.stats_helper.set_first_run()
+        if not self.helper.check_file_exists(str(Path(self.server_path, ".crafty"))):
             loc_server_port = self.stats_helper.get_server_stats()["server_port"]
             # Sends port reminder message.
             WebSocketManager().broadcast_user(
@@ -713,7 +712,11 @@ class ServerInstance:
             WebSocketManager().broadcast_to_server_users(
                 self.server_id, "send_start_reload", {}
             )
-
+        # Write last start text file for first run tracking
+        self.file_helper.write_text_file(
+            Path(self.server_path, ".crafty"),
+            f"{self.name} last started {self.start_time}",
+        )
         # Register an shedule for polling server stats when running
         logger.info(f"Polling server statistics {self.name} every {5} seconds")
         Console.info(f"Polling server statistics {self.name} every {5} seconds")

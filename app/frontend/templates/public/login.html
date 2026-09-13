@@ -88,7 +88,7 @@
                     <div class="input-group flex-container">
                       <div id="totp_container">
                         <input type="text" class="form-control login-text-input login-input" placeholder="000000"
-                          name="totp" id="totp">
+                          name="totp" id="totp" autocomplete="one-time-code">
                       </div>
                   </label>
                   <select required class="form-control form-control-lg select-css" id="2fa-type" name="type">
@@ -256,7 +256,7 @@
 
     async function checkPasskeySupport() {
       if (globalThis.PublicKeyCredential &&
-          PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
+        PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
         try {
           // Check if passkey is enabled on server
           const configCheck = await fetch('/api/v2/auth/passkey/login/options/', {
@@ -274,7 +274,7 @@
       }
     }
 
-    document.getElementById('passkey-login-btn').addEventListener('click', async function() {
+    document.getElementById('passkey-login-btn').addEventListener('click', async function () {
       const loginFailedMsg = '{{ translate("passkey", "loginFailed", data["lang"]) }}';
       const authFailedMsg = '{{ translate("passkey", "authFailed", data["lang"]) }}';
       try {
@@ -320,7 +320,7 @@
                 clientDataJSON: bufferToBase64URL(credential.response.clientDataJSON),
                 signature: bufferToBase64URL(credential.response.signature),
                 userHandle: credential.response.userHandle ?
-                    bufferToBase64URL(credential.response.userHandle) : null,
+                  bufferToBase64URL(credential.response.userHandle) : null,
               },
             },
           }),
@@ -350,7 +350,7 @@
     });
 
     // Check passkey support on page load
-    $(document).ready(function() {
+    $(document).ready(function () {
       checkPasskeySupport();
     });
   </script>

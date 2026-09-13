@@ -349,7 +349,12 @@
 
   $(document).ready(() => {
     $('#virt_console').on('scroll', chkScroll);
-    $('#to-bottom').on('click', scrollToBottom)
+    $('#to-bottom').on('click', scrollToBottom);
+    document.addEventListener('visibilitychange', (event) => {
+      console.log('Tab has resumed from hibernation.');
+      get_server_log();
+    });
+
   });
 </script>
 

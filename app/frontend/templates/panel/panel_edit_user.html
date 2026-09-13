@@ -430,7 +430,7 @@ data['lang']) }}{% end %}
     }
   }
   function replacer(key, value) {
-      if (typeof value == "boolean" || key === "email" || key === "permissions" || key === "roles") {
+      if (typeof value == "boolean" || key === "email" || key === "permissions" || key === "roles" || key === "username") {
         console.log(key)
         return value
       } else if (key === "password"){
