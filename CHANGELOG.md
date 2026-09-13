@@ -14,6 +14,7 @@
 - [`CVE-2026-18516`] Security: Fix XSS in activity logs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1078))
 ### Tweaks
 - Add compatability for OTP on bitwarden ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1088))
+- Update stale tests to match current crafty behaviour ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1091))
 <br><br>
 
 ## --- [4.10.8] - 2026/07/26
