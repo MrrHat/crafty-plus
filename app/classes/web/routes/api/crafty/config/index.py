@@ -192,6 +192,11 @@ config_json_schema = {
             "error": "typeInteger",
             "fill": True,
         },
+        "trusted_proxies": {
+            "type": "array",
+            "items": {"type": "string"},
+            "error": "typeList",
+        },
         "max_image_upload_size_mb": {
             "type": "integer",
             "minimum": 1,

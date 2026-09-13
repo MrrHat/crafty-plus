@@ -36,6 +36,7 @@
         "getMFA": "Enable multi-factor authentication (MFA) to better protect your account. Without MFA, your account is more vulnerable to unauthorized access."
     },
     "configJson": {
+        "trusted_proxies": "Trusted Proxy Addresses (List of strings separated by Commas) - (Leave blank to accepted headers from all)",
         "False": "False",
         "True": "True",
         "allow_nsfw_profile_pictures": "Allow Gravatar™ NSFW profile pictures",
