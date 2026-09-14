@@ -12,6 +12,7 @@
 - Fix config.json self delete flag not working ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1086))
 - Fix intermittent bug where users see first run message multiple times ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1087))
 - [`CVE-2026-18516`] Security: Fix XSS in activity logs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1078))
+- Catch `jsondecodeerror` on player cache read ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1092))
 ### Tweaks
 - Add compatability for OTP on bitwarden ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1088))
 - Update stale tests to match current crafty behaviour ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1091))
