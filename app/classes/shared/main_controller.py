@@ -1042,6 +1042,13 @@ class Controller:
                     HelpersManagement.delete_scheduled_task_by_server(server_id)
                 except DoesNotExist:
                     logger.info("No scheduled jobs exist. Continuing.")
+                # Cleanup webhooks
+                try:
+                    self.management.delete_webhook_by_server(server_id)
+                except DoesNotExist as why:
+                    logger.exception(
+                        "Could not delete server webhooks with error %s", why
+                    )
                 # remove the server from the DB
                 self.servers.remove_server(server_id)
 
