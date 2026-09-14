@@ -8,6 +8,14 @@ from app.classes.models.server_permissions import EnumPermissionsServer
 from app.classes.web.base_api_handler import BaseApiHandler
 from app.classes.web.webhooks.webhook_factory import WebhookFactory
 
+URL_REGEX_PATTERN = (
+    r"^(https?://)?"
+    r"((([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,})"
+    r"|(((25[0-5]|(2[0-4]|1\d|[1-9])?\d)\.){3}(25[0-5]|(2[0-4]|1\d|[1-9])?\d))"
+    r"|(\[[a-fA-F0-9:]+\]))"
+    r"(:(6553[0-5]|655[0-2]\d|65[0-4]\d{2}|6[0-4]\d{3}|[1-5]\d{4}|[1-9]\d{0,3}))?"
+    r"(/.*)?$"
+)
 logger = logging.getLogger(__name__)
 new_webhook_schema = {
     "type": "object",
@@ -25,6 +33,7 @@ new_webhook_schema = {
         },
         "url": {
             "type": "string",
+            "pattern": URL_REGEX_PATTERN,
             "error": "typeString",
             "fill": True,
         },
