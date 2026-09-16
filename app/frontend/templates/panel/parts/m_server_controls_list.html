@@ -34,7 +34,7 @@
             {% if data['permissions']['Config'] in data['user_permissions'] %}
             <a class="dropdown-item {% if data['active_link'] == 'webhooks' %}active{% end %}" href="/panel/server_detail?id={{ data['server_stats']['server_id']['server_id'] }}&subpage=webhooks" role="tab" aria-selected="true"><i class="ph-fill ph-bell"></i>{{ translate('webhooks', 'webhooks', data['lang']) }}</a>
             {% end %}
-            {% if data['permissions']['Config'] in data['user_permissions'] or data['server_data']['type'] != 'steam_cmd' %}
+            {% if data['permissions']['Config'] in data['user_permissions'] and data['server_data']['type'] != 'steam_cmd' %}
             <a class="dropdown-item {% if data['active_link'] == 'update_center' %}active{% end %}" href="/panel/server_detail?id={{ data['server_stats']['server_id']['server_id'] }}&subpage=update_center" role="tab" aria-selected="true"><span class="update-nav-text"><i class="ph ph-bell"></i>&nbsp;{{ translate('serverUpdate', 'updateCtr', data['lang']) }}</span><span class="update-icon"></span></a> 
             {% end %}
         </div>

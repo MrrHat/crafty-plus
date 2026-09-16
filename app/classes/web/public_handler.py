@@ -21,9 +21,11 @@ class PublicHandler(BaseHandler):
             "lang_page": self.helper.get_lang_page(self.helper.get_setting("language")),
             "query": "",
             "background": self.controller.cached_login,
+            "brand": self.controller.cached_brand,
             "login_opacity": self.controller.management.get_login_opacity(),
             "themes": self.helper.get_themes(),
         }
+        page_data["embed"] = self.get_embed_meta("/login")
 
         if self.request.query:
             request_query = self.request.query_arguments.get("next")

@@ -705,7 +705,7 @@
         "apply": "Toepassen",
         "loginImage": "Upload een achtergrondafbeelding voor het loginscherm.",
         "backgroundUpload": "Achtergrond Upload",
-        "customLoginPage": "De Login Pagina Aanpassen",
+        "customLoginPage": "Uiterlijk & Identiteit",
         "delete": "Verwijderen",
         "labelLoginImage": "Kies jouw Login Achtergrond",
         "loginBackground": "Login Achtergrondafbeelding",
@@ -713,7 +713,32 @@
         "pageTitle": "Aangepaste Inlogpagina",
         "preview": "Voorvertoning",
         "select": "Selecteer",
-        "selectImage": "Selecteer een afbeelding"
+        "selectImage": "Selecteer een afbeelding",
+        "backgroundChooseExisting": "Bestaande kiezen",
+        "backgroundUploadNew": "Nieuwe achtergrond uploaden",
+        "changeApplied": "Wijzigingen aangebracht",
+        "embedChooseExisting": "Bestaande kiezen",
+        "embedColorField": "Accentkleur",
+        "embedDescriptionField": "Embed-beschrijving",
+        "embedEnabled": "Embeds inschakelen",
+        "embedHelp": "Aanpassen hoe de link naar je paneel wordt weergegeven in de preview wanneer deze wordt gedeeld op Discord en andere platforms.",
+        "embedImageDefault": "Standaard (Crafty-logo)",
+        "embedImageSelect": "Afbeelding embedden",
+        "embedImageUpload": "Embedafbeelding Uploaden",
+        "embedTitle": "Linkpreviews",
+        "embedTitleField": "Embedtitel",
+        "embedUploadNew": "Nieuwe uploaden",
+        "imageDeleted": "Afbeelding verwijderd",
+        "logoChooseExisting": "Bestaande kiezen",
+        "logoDefault": "Standaard (Crafty-logo)",
+        "logoFull": "Volledige logo (breed)",
+        "logoSquare": "Vierkante logo (icoon)",
+        "logoUploadNew": "Nieuw logo uploaden",
+        "logosTitle": "Custom logos uploaden voor jouw paneel.",
+        "nothingToDelete": "Dat is de standaard afbeelding — er is niks om te verwijderen.",
+        "recommendedSize": "Aanbevolen grootte:",
+        "unsavedChanges": "Nog niet toegepast. Klik op Toepassen om op te slaan.",
+        "uploadImage": "Nieuwe uploaden"
     },
     "offline": {
         "offline": "Offline",
@@ -744,7 +769,9 @@
         "mfaName": "Invoer moet van type String zijn van minstens 3 karakters voor deze eigenschap",
         "additionalProperties": "Aanvullende Eigenschappen mogen niet meegestuurd worden",
         "passProp": "Wachtwoord moet tekst zijn met een minimale lengte van 8 karakters.",
-        "typeEpoch": "moet een epoch-waarde zijn"
+        "typeEpoch": "moet een epoch-waarde zijn",
+        "invalidImageType": "Onjuiste bestandstype. Gelieve een afbeelding uploaden (PNG, JPG, GIF, WebP, BMP of TIFF).",
+        "imageTooLarge": "Afbeelding is te groot. De maximum uploadgrootte is {} MB."
     },
     "serverMetrics": {
         "zoomHint1": "Om in te zoomen op de grafiek, houdt je de shift-toets ingedrukt en gebruik je vervolgens je scrollwiel.",
@@ -851,7 +878,8 @@
         "sampling_fallback_divisor": "Fallback-samplingdeler (gebruikt voor tijdsbereiken buiten het laatste niveau)",
         "enable_passkey_auth": "Passkey-authenticatie (WebAuthn) inschakelen",
         "passkey_rp_name": "Passkey-vertrouwende partijnaam (weergegeven in prompts van de authenticator)",
-        "silent_notif_fields": "Gebruikersvelden dat stilletjes wijzigingen bijhouden in het logboek (geen notificatie-popup)"
+        "silent_notif_fields": "Gebruikersvelden dat stilletjes wijzigingen bijhouden in het logboek (geen notificatie-popup)",
+        "max_image_upload_size_mb": "Maximale grootte toegestaan voor afbeeldingsuploads via het paneel, zoals voor logo's en achtergronden (MB)"
     },
     "serverFilesEditor": {
         "saved": "Opgeslagen",

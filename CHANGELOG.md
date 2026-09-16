@@ -1,4 +1,28 @@
 # Changelog
+## --- [4.11.0] - 2026/09/16
+### New features
+- Add OpenGraph social media previews/embeds link customization ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1029))
+- Custom Branding and "Customize Crafty" page redesign ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1037))
+- Resolve glob patterns in logfile paths for Hytale logs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1039))
+- Add historical/rotated log viewing to the Logs tab ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1085))
+- Automatically grab latest server term when tab wakes up ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1089))
+### Bug fixes
+- Fix all-numeric usernames rejected as invalid JSON schema ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/994))
+- Remove update center listing from those who do not have access ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1084))
+- Fix config.json self delete flag not working ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1086))
+- Fix intermittent bug where users see first run message multiple times ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1087))
+- [`CVE-2026-18516`] Security: Fix XSS in activity logs ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1078))
+- [`CVE-2026-90821`] Security: Fix XSS in webhooks ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1082))
+- Catch `jsondecodeerror` on player cache read ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1092))
+- Fix notification bell when no annoucements are present ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1093))
+- Remove webhook entry when server is deleted ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1094))
+### Tweaks
+- Add compatability for OTP on bitwarden ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1088))
+- Update stale tests to match current crafty behaviour ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1091))
+- Remove unused package dependencies ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1090))
+- Add a ban reason prompt ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1083))
+<br><br>
+
 ## --- [4.10.8] - 2026/07/26
 ### Refactor
 - Remove Unused Exceptions ([Merge Request](https://gitlab.com/crafty-controller/crafty-4/-/merge_requests/1055))

@@ -1,6 +1,8 @@
 import base64
 import contextlib
 import ctypes
+import glob
+import gzip
 import html
 import itertools
 import json
@@ -93,6 +95,8 @@ MASTER_CONFIG = {
         {"max_hours": 72, "sample_rate": 6},
     ],
     "sampling_fallback_divisor": 12,
+    "trusted_proxies": [],
+    "max_image_upload_size_mb": 5,
 }
 
 CONFIG_CATEGORIES = {
@@ -106,6 +110,7 @@ CONFIG_CATEGORIES = {
         "enable_user_self_delete",
         "base_url",
         "experimental",
+        "max_image_upload_size_mb",
     ],
     "security": [
         "allow_nsfw_profile_pictures",
@@ -116,6 +121,7 @@ CONFIG_CATEGORIES = {
         "max_login_attempts",
         "enable_passkey_auth",
         "passkey_rp_name",
+        "trusted_proxies",
     ],
     "logs": [
         "max_log_lines",
@@ -906,10 +912,52 @@ class Helpers:
         raise ValueError("Path traversal detected")
 
     @staticmethod
+    def resolve_log_path(log_path):
+        """Resolve a server log path that may be a glob pattern to a concrete file.
+
+        Server types such as Hytale write a new timestamped log file on every boot
+        (e.g. ``2026-02-18_01-21-32_server.log``) rather than reusing a fixed name like
+        Minecraft's ``latest.log``. Storing a glob pattern in ``log_path`` lets the
+        Logs tab always follow the active file.
+
+        :param log_path: A path that may contain glob metacharacters (``* ? [``). It is
+            expected to already be joined with the server directory by the caller.
+        :return: The newest matching file by modification time as a
+            :class:`pathlib.Path`. A path with no glob characters is returned unchanged.
+            If the pattern matches nothing, it is returned as-is so downstream
+            "file not found" handling still fires.
+        """
+        log_path = str(log_path)
+
+        # Check for magic chars, return early if none present
+        if not re.search(r"[*?[]", log_path):
+            return pathlib.Path(log_path)
+
+        matches = glob.glob(log_path)
+        if not matches:
+            return pathlib.Path(log_path)
+
+        # Newest by mtime reflects the file currently being written, which stays
+        # correct even if the naming scheme changes or files are copied in.
+        return pathlib.Path(max(matches, key=os.path.getmtime))
+
+    @staticmethod
     def tail_file(file_name, number_lines=20):
         if not Helpers.check_file_exists(file_name):
             logger.warning(f"Unable to find file to tail: {file_name}")
             return [f"Unable to find file to tail: {file_name}"]
+
+        if str(file_name).endswith(".gz"):
+            # Gzip archives can't be seeked into by byte offset like a plain
+            # text file, so decompress fully and keep only the last N lines.
+            try:
+                with gzip.open(file_name, "rt", encoding="utf-8") as f:
+                    return f.readlines()[-number_lines:]
+            except OSError as e:
+                logger.warning(
+                    f"Unable to read gzip file:{file_name} - due to error: {e}"
+                )
+                return [f"Unable to read gzip file: {file_name}"]
 
         # length of lines is X char here
         avg_line_length = 255

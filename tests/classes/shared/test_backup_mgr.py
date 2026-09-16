@@ -137,7 +137,8 @@ def test_restore_starter_invalid_backup_file(
 def test_validate_backup_location_success(test_case: tuple[str, str]):
     """Test various valid backup locations"""
     mock_server_instance = Mock()
-    mock_server_instance.server_path, backup_path = test_case
+    server_path, backup_path = test_case
+    mock_server_instance.settings = {"path": server_path}
     mock_backup_config = {"backup_location": backup_path}
 
     mgr = BackupManager(MagicMock(), MagicMock(), MagicMock())
@@ -157,9 +158,9 @@ def test_validate_backup_location_success(test_case: tuple[str, str]):
         (
             "app/servers/mockserver",
             "app/servers/mockserver/example",
-        ),  # backing up to parent
+        ),  # backing up to a child directory
         ("app/servers/mockserver", "app/servers/mockserver/example/example"),
-        # backing up to folder 2 levels in from parent
+        # backing up to a nested child directory
     ],
 )
 def test_validate_backup_location_failure(
@@ -167,7 +168,8 @@ def test_validate_backup_location_failure(
 ):
     """Test various invalid backup locations"""
     mock_server_instance = Mock()
-    mock_server_instance.server_path, backup_path = test_case
+    server_path, backup_path = test_case
+    mock_server_instance.settings = {"path": server_path}
     mock_backup_config = {"backup_location": backup_path}
 
     mgr = BackupManager(MagicMock(), MagicMock(), MagicMock())

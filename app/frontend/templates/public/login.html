@@ -5,6 +5,7 @@
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  {% include og_meta.html %}
   <title>Crafty Controller</title>
   <!-- plugins:css -->
   <link rel="stylesheet" href="/static/assets/vendors/mdi/css/materialdesignicons.min.css">
@@ -52,7 +53,7 @@
             <div id="login-form-background" class="auto-form-wrapper login-modal">
               <div id="login_opacity" data-value="{{ data['login_opacity'] }}" hidden></div>
               <div class="text-center auto-form-logo">
-                <img src="/static/assets/images/logo_long.svg">
+                <img src="{{ data['brand']['full'] }}">
               </div>
               <form id="login-form">
                 {% raw xsrf_form_html() %}
@@ -87,7 +88,7 @@
                     <div class="input-group flex-container">
                       <div id="totp_container">
                         <input type="text" class="form-control login-text-input login-input" placeholder="000000"
-                          name="totp" id="totp">
+                          name="totp" id="totp" autocomplete="one-time-code">
                       </div>
                   </label>
                   <select required class="form-control form-control-lg select-css" id="2fa-type" name="type">
@@ -255,7 +256,7 @@
 
     async function checkPasskeySupport() {
       if (globalThis.PublicKeyCredential &&
-          PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
+        PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
         try {
           // Check if passkey is enabled on server
           const configCheck = await fetch('/api/v2/auth/passkey/login/options/', {
@@ -273,7 +274,7 @@
       }
     }
 
-    document.getElementById('passkey-login-btn').addEventListener('click', async function() {
+    document.getElementById('passkey-login-btn').addEventListener('click', async function () {
       const loginFailedMsg = '{{ translate("passkey", "loginFailed", data["lang"]) }}';
       const authFailedMsg = '{{ translate("passkey", "authFailed", data["lang"]) }}';
       try {
@@ -319,7 +320,7 @@
                 clientDataJSON: bufferToBase64URL(credential.response.clientDataJSON),
                 signature: bufferToBase64URL(credential.response.signature),
                 userHandle: credential.response.userHandle ?
-                    bufferToBase64URL(credential.response.userHandle) : null,
+                  bufferToBase64URL(credential.response.userHandle) : null,
               },
             },
           }),
@@ -349,7 +350,7 @@
     });
 
     // Check passkey support on page load
-    $(document).ready(function() {
+    $(document).ready(function () {
       checkPasskeySupport();
     });
   </script>

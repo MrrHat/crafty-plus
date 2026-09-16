@@ -1,4 +1,5 @@
 import logging
+import ipaddress
 import re
 import typing as t
 import orjson
@@ -10,6 +11,7 @@ from app.classes.models.server_permissions import EnumPermissionsServer
 from app.classes.models.users import ApiKeys
 from app.classes.helpers.helpers import Helpers
 from app.classes.helpers.file_helpers import FileHelpers
+from app.classes.helpers.embed_helpers import build_embed_meta
 from app.classes.shared.main_controller import Controller
 from app.classes.shared.translation import Translation
 from app.classes.shared.main_models import DatabaseShortcuts
@@ -66,13 +68,43 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_status(204)
         self.finish()
 
-    def get_remote_ip(self):
-        remote_ip = (
-            self.request.headers.get("X-Real-IP")
-            or self.request.headers.get("X-Forwarded-For")
-            or self.request.remote_ip
-        )
-        return remote_ip
+    def get_remote_ip(self) -> str:
+        """Returns IP address of the remote request or headers. Validates header are
+        coming from trusted proxies set in the config.json file. Ensures address
+        is a valid IPv4 or v6 address
+
+        Returns:
+            str: IPv4 or IPv6 address of remote request.
+        """
+        trusted = list(self.helper.get_setting("trusted_proxies")) or []
+        remote_ip = None
+        header_ip = None
+
+        if (
+            not trusted or self.request.remote_ip in trusted
+        ):  # Allow any headers if trusted is empty
+            # for backward compatability.
+            # Extract header value, taking first IP if X-Forwarded-For is a chain
+            raw_header = (
+                self.request.headers.get("X-Real-IP")
+                or self.request.headers.get("X-Forwarded-For")
+                or self.request.remote_ip
+            )
+            if raw_header:
+                header_ip = raw_header.split(",")[0].strip()
+        else:
+            # If proxy address is not in trusted we'll just ignore the headers
+            remote_ip = self.request.remote_ip
+        try:
+            return str(ipaddress.ip_address((remote_ip or header_ip)))
+        except ValueError:
+            return "0.0.0.0"
+
+    def get_embed_meta(self, page_path):
+        """Build OG embed metadata for a public page, or None if disabled."""
+        settings = self.controller.management.get_embed_settings()
+        base_url = f"{self.request.protocol}://{self.request.host}"
+        return build_embed_meta(settings, base_url, page_path)
 
     current_user: t.Tuple[t.Optional[ApiKeys], t.Dict[str, t.Any], t.Dict[str, t.Any]]
     """
